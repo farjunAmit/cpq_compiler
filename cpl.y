@@ -123,7 +123,7 @@
 
 }
 
-%token CASE
+%token <tval> CASE
 %token DEFAULT
 %token ELSE
 %token <tval> FLOAT
@@ -409,7 +409,28 @@ term            :   term MULOP factor
                 ;
 
 factor          :   '(' expression ')' {$$ = $2;}
-                /*|   CAST '(' expression ')'*/
+                |   CAST '(' expression ')'
+                    { char *expressionVariable = getExpType($3);
+                      tempResult temp = newTemp();
+                      if($1 == INTTYPE){
+                        if($3 -> type == INTTYPE){
+                          printf("WARNING: in line:%d TRY TO CAST INT TO INT", yylineno);
+                          addIASN(temp,expressionVariable);
+                        }
+                        else
+                          addITOR(temp,expressionVariable);
+                      }
+                      if($1 == FLOATTYPE){
+                        if($3 -> type == FLOATTYPE){
+                          printf("WARNING: in line:%d TRY TO CAST FLAOT TO FLAOT", yylineno);
+                          addRASN(temp,expressionVariable);
+                        }
+                        else
+                          addRTOI(temp,expressionVariable);
+                      }
+                      $$ -> result = temp;
+                      $$ ->type = $1; 
+                    }
                 |   ID  {$$ = creatNewExpression();
                         $$->variable = $1;
                         $$ -> result = NULL;
@@ -418,7 +439,7 @@ factor          :   '(' expression ')' {$$ = $2;}
                           yyerror("not valid ID");
                         else 
                           $$->type = temp->type;}
-                |   NUM {$$=creatNewExpression(); $$->variable = $1;}
+                |   NUM {$$=creatNewExpression(); $$->type = (isFloat($1)) ? FLOATTYPE : INTTYPE; $$->variable = $1;}
                 ;
 
 create_label    :   /*empty*/ { $$ = newLabel();}
@@ -570,6 +591,15 @@ int digitsInNum(int num){
     num = num / 10;
   }
   return counter;
+}
+
+int isFloat(char *number){
+  char * currentNum = number;
+  while(currentNum != "\0"){
+    if(currentNum[0] == '.') return 1;
+    currentNum++;
+  }
+  return 0;
 }
 
 /*cpl command function*/

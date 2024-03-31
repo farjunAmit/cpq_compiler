@@ -2,7 +2,6 @@ Terminals unused in grammar
 
    CASE
    DEFAULT
-   CAST
 
 
 Grammar
@@ -70,17 +69,18 @@ Grammar
    37     | factor
 
    38 factor: '(' expression ')'
-   39       | ID
-   40       | NUM
+   39       | CAST '(' expression ')'
+   40       | ID
+   41       | NUM
 
-   41 create_label: /* empty */
+   42 create_label: /* empty */
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'(' (40) 17 18 21 24 32 38
-')' (41) 17 18 21 24 32 38
+'(' (40) 17 18 21 24 32 38 39
+')' (41) 17 18 21 24 32 38 39
 ',' (44) 8
 ':' (58) 5
 ';' (59) 5 16 17 18
@@ -103,9 +103,9 @@ MULOP (269) 36
 OR (270) 28
 AND (271) 30
 NOT (272) 32
-CAST (273)
-ID (274) 8 9 16 17 39
-NUM (275) 40
+CAST (273) 39
+ID (274) 8 9 16 17 40
+NUM (275) 41
 
 
 Nonterminals, with rules where they appear
@@ -113,7 +113,7 @@ Nonterminals, with rules where they appear
 $accept (29)
     on left: 0
 create_label (30)
-    on left: 41, on right: 21 24
+    on left: 42, on right: 21 24
 boolexpr (31)
     on left: 28 29, on right: 21 24 28 32
 boolterm (32)
@@ -121,11 +121,11 @@ boolterm (32)
 boolfactor (33)
     on left: 32 33, on right: 30 31
 factor (34)
-    on left: 38 39 40, on right: 36 37
+    on left: 38 39 40 41, on right: 36 37
 term (35)
     on left: 36 37, on right: 34 35 36
 expression (36)
-    on left: 34 35, on right: 16 18 33 34 38
+    on left: 34 35, on right: 16 18 33 34 38 39
 type (37)
     on left: 6 7, on right: 5
 program (38)
@@ -276,7 +276,7 @@ State 11
 
    21 if_stmt: IF . create_label '(' boolexpr ')' $@2 stmt $@3 ELSE stmt
 
-    $default  reduce using rule 41 (create_label)
+    $default  reduce using rule 42 (create_label)
 
     create_label  go to state 26
 
@@ -299,7 +299,7 @@ State 14
 
    24 while_stmt: WHILE . create_label $@4 '(' boolexpr ')' $@5 stmt
 
-    $default  reduce using rule 41 (create_label)
+    $default  reduce using rule 42 (create_label)
 
     create_label  go to state 29
 
@@ -402,13 +402,14 @@ State 28
 
    18 output_stmt: OUTPUT '(' . expression ')' ';'
 
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
 
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 42
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 43
 
 
 State 29
@@ -417,20 +418,21 @@ State 29
 
     $default  reduce using rule 22 ($@4)
 
-    $@4  go to state 43
+    $@4  go to state 44
 
 
 State 30
 
    16 assignment_stmt: ID '=' . expression ';'
 
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
 
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 44
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 45
 
 
 State 31
@@ -451,7 +453,7 @@ State 33
 
     5 declaration: $@1 idlist ':' type . ';'
 
-    ';'  shift, and go to state 45
+    ';'  shift, and go to state 46
 
 
 State 34
@@ -465,351 +467,390 @@ State 35
 
    21 if_stmt: IF create_label '(' . boolexpr ')' $@2 stmt $@3 ELSE stmt
 
-    NOT  shift, and go to state 46
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
+    NOT   shift, and go to state 47
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
 
-    boolexpr    go to state 47
-    boolterm    go to state 48
-    boolfactor  go to state 49
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 50
+    boolexpr    go to state 48
+    boolterm    go to state 49
+    boolfactor  go to state 50
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 51
 
 
 State 36
 
    17 input_stmt: INPUT '(' ID . ')' ';'
 
-    ')'  shift, and go to state 51
+    ')'  shift, and go to state 52
 
 
 State 37
 
-   39 factor: ID .
+   39 factor: CAST . '(' expression ')'
 
-    $default  reduce using rule 39 (factor)
+    '('  shift, and go to state 53
 
 
 State 38
 
-   40 factor: NUM .
+   40 factor: ID .
 
     $default  reduce using rule 40 (factor)
 
 
 State 39
 
-   38 factor: '(' . expression ')'
+   41 factor: NUM .
 
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
-
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 52
+    $default  reduce using rule 41 (factor)
 
 
 State 40
+
+   38 factor: '(' . expression ')'
+
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
+
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 54
+
+
+State 41
 
    37 term: factor .
 
     $default  reduce using rule 37 (term)
 
 
-State 41
+State 42
 
    35 expression: term .
    36 term: term . MULOP factor
 
-    MULOP  shift, and go to state 53
+    MULOP  shift, and go to state 55
 
     $default  reduce using rule 35 (expression)
 
 
-State 42
+State 43
 
    18 output_stmt: OUTPUT '(' expression . ')' ';'
    34 expression: expression . ADDOP term
 
-    ADDOP  shift, and go to state 54
-    ')'    shift, and go to state 55
-
-
-State 43
-
-   24 while_stmt: WHILE create_label $@4 . '(' boolexpr ')' $@5 stmt
-
-    '('  shift, and go to state 56
+    ADDOP  shift, and go to state 56
+    ')'    shift, and go to state 57
 
 
 State 44
 
-   16 assignment_stmt: ID '=' expression . ';'
-   34 expression: expression . ADDOP term
+   24 while_stmt: WHILE create_label $@4 . '(' boolexpr ')' $@5 stmt
 
-    ADDOP  shift, and go to state 54
-    ';'    shift, and go to state 57
+    '('  shift, and go to state 58
 
 
 State 45
+
+   16 assignment_stmt: ID '=' expression . ';'
+   34 expression: expression . ADDOP term
+
+    ADDOP  shift, and go to state 56
+    ';'    shift, and go to state 59
+
+
+State 46
 
     5 declaration: $@1 idlist ':' type ';' .
 
     $default  reduce using rule 5 (declaration)
 
 
-State 46
+State 47
 
    32 boolfactor: NOT . '(' boolexpr ')'
 
-    '('  shift, and go to state 58
-
-
-State 47
-
-   21 if_stmt: IF create_label '(' boolexpr . ')' $@2 stmt $@3 ELSE stmt
-   28 boolexpr: boolexpr . OR boolterm
-
-    OR   shift, and go to state 59
-    ')'  shift, and go to state 60
+    '('  shift, and go to state 60
 
 
 State 48
 
+   21 if_stmt: IF create_label '(' boolexpr . ')' $@2 stmt $@3 ELSE stmt
+   28 boolexpr: boolexpr . OR boolterm
+
+    OR   shift, and go to state 61
+    ')'  shift, and go to state 62
+
+
+State 49
+
    29 boolexpr: boolterm .
    30 boolterm: boolterm . AND boolfactor
 
-    AND  shift, and go to state 61
+    AND  shift, and go to state 63
 
     $default  reduce using rule 29 (boolexpr)
 
 
-State 49
+State 50
 
    31 boolterm: boolfactor .
 
     $default  reduce using rule 31 (boolterm)
 
 
-State 50
+State 51
 
    33 boolfactor: expression . RELOP expression
    34 expression: expression . ADDOP term
 
-    RELOP  shift, and go to state 62
-    ADDOP  shift, and go to state 54
-
-
-State 51
-
-   17 input_stmt: INPUT '(' ID ')' . ';'
-
-    ';'  shift, and go to state 63
+    RELOP  shift, and go to state 64
+    ADDOP  shift, and go to state 56
 
 
 State 52
 
-   34 expression: expression . ADDOP term
-   38 factor: '(' expression . ')'
+   17 input_stmt: INPUT '(' ID ')' . ';'
 
-    ADDOP  shift, and go to state 54
-    ')'    shift, and go to state 64
+    ';'  shift, and go to state 65
 
 
 State 53
 
-   36 term: term MULOP . factor
+   39 factor: CAST '(' . expression ')'
 
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
 
-    factor  go to state 65
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 66
 
 
 State 54
 
-   34 expression: expression ADDOP . term
+   34 expression: expression . ADDOP term
+   38 factor: '(' expression . ')'
 
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
-
-    factor  go to state 40
-    term    go to state 66
+    ADDOP  shift, and go to state 56
+    ')'    shift, and go to state 67
 
 
 State 55
 
-   18 output_stmt: OUTPUT '(' expression ')' . ';'
+   36 term: term MULOP . factor
 
-    ';'  shift, and go to state 67
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
+
+    factor  go to state 68
 
 
 State 56
 
-   24 while_stmt: WHILE create_label $@4 '(' . boolexpr ')' $@5 stmt
+   34 expression: expression ADDOP . term
 
-    NOT  shift, and go to state 46
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
 
-    boolexpr    go to state 68
-    boolterm    go to state 48
-    boolfactor  go to state 49
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 50
+    factor  go to state 41
+    term    go to state 69
 
 
 State 57
+
+   18 output_stmt: OUTPUT '(' expression ')' . ';'
+
+    ';'  shift, and go to state 70
+
+
+State 58
+
+   24 while_stmt: WHILE create_label $@4 '(' . boolexpr ')' $@5 stmt
+
+    NOT   shift, and go to state 47
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
+
+    boolexpr    go to state 71
+    boolterm    go to state 49
+    boolfactor  go to state 50
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 51
+
+
+State 59
 
    16 assignment_stmt: ID '=' expression ';' .
 
     $default  reduce using rule 16 (assignment_stmt)
 
 
-State 58
+State 60
 
    32 boolfactor: NOT '(' . boolexpr ')'
 
-    NOT  shift, and go to state 46
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
+    NOT   shift, and go to state 47
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
 
-    boolexpr    go to state 69
-    boolterm    go to state 48
-    boolfactor  go to state 49
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 50
+    boolexpr    go to state 72
+    boolterm    go to state 49
+    boolfactor  go to state 50
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 51
 
 
-State 59
+State 61
 
    28 boolexpr: boolexpr OR . boolterm
 
-    NOT  shift, and go to state 46
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
+    NOT   shift, and go to state 47
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
 
-    boolterm    go to state 70
-    boolfactor  go to state 49
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 50
+    boolterm    go to state 73
+    boolfactor  go to state 50
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 51
 
 
-State 60
+State 62
 
    21 if_stmt: IF create_label '(' boolexpr ')' . $@2 stmt $@3 ELSE stmt
 
     $default  reduce using rule 19 ($@2)
 
-    $@2  go to state 71
-
-
-State 61
-
-   30 boolterm: boolterm AND . boolfactor
-
-    NOT  shift, and go to state 46
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
-
-    boolfactor  go to state 72
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 50
-
-
-State 62
-
-   33 boolfactor: expression RELOP . expression
-
-    ID   shift, and go to state 37
-    NUM  shift, and go to state 38
-    '('  shift, and go to state 39
-
-    factor      go to state 40
-    term        go to state 41
-    expression  go to state 73
+    $@2  go to state 74
 
 
 State 63
+
+   30 boolterm: boolterm AND . boolfactor
+
+    NOT   shift, and go to state 47
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
+
+    boolfactor  go to state 75
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 51
+
+
+State 64
+
+   33 boolfactor: expression RELOP . expression
+
+    CAST  shift, and go to state 37
+    ID    shift, and go to state 38
+    NUM   shift, and go to state 39
+    '('   shift, and go to state 40
+
+    factor      go to state 41
+    term        go to state 42
+    expression  go to state 76
+
+
+State 65
 
    17 input_stmt: INPUT '(' ID ')' ';' .
 
     $default  reduce using rule 17 (input_stmt)
 
 
-State 64
+State 66
+
+   34 expression: expression . ADDOP term
+   39 factor: CAST '(' expression . ')'
+
+    ADDOP  shift, and go to state 56
+    ')'    shift, and go to state 77
+
+
+State 67
 
    38 factor: '(' expression ')' .
 
     $default  reduce using rule 38 (factor)
 
 
-State 65
+State 68
 
    36 term: term MULOP factor .
 
     $default  reduce using rule 36 (term)
 
 
-State 66
+State 69
 
    34 expression: expression ADDOP term .
    36 term: term . MULOP factor
 
-    MULOP  shift, and go to state 53
+    MULOP  shift, and go to state 55
 
     $default  reduce using rule 34 (expression)
 
 
-State 67
+State 70
 
    18 output_stmt: OUTPUT '(' expression ')' ';' .
 
     $default  reduce using rule 18 (output_stmt)
 
 
-State 68
+State 71
 
    24 while_stmt: WHILE create_label $@4 '(' boolexpr . ')' $@5 stmt
    28 boolexpr: boolexpr . OR boolterm
 
-    OR   shift, and go to state 59
-    ')'  shift, and go to state 74
+    OR   shift, and go to state 61
+    ')'  shift, and go to state 78
 
 
-State 69
+State 72
 
    28 boolexpr: boolexpr . OR boolterm
    32 boolfactor: NOT '(' boolexpr . ')'
 
-    OR   shift, and go to state 59
-    ')'  shift, and go to state 75
+    OR   shift, and go to state 61
+    ')'  shift, and go to state 79
 
 
-State 70
+State 73
 
    28 boolexpr: boolexpr OR boolterm .
    30 boolterm: boolterm . AND boolfactor
 
-    AND  shift, and go to state 61
+    AND  shift, and go to state 63
 
     $default  reduce using rule 28 (boolexpr)
 
 
-State 71
+State 74
 
    21 if_stmt: IF create_label '(' boolexpr ')' $@2 . stmt $@3 ELSE stmt
 
@@ -820,7 +861,7 @@ State 71
     ID      shift, and go to state 15
     '{'     shift, and go to state 4
 
-    stmt             go to state 76
+    stmt             go to state 80
     assignment_stmt  go to state 18
     input_stmt       go to state 19
     output_stmt      go to state 20
@@ -829,49 +870,56 @@ State 71
     stmt_block       go to state 23
 
 
-State 72
+State 75
 
    30 boolterm: boolterm AND boolfactor .
 
     $default  reduce using rule 30 (boolterm)
 
 
-State 73
+State 76
 
    33 boolfactor: expression RELOP expression .
    34 expression: expression . ADDOP term
 
-    ADDOP  shift, and go to state 54
+    ADDOP  shift, and go to state 56
 
     $default  reduce using rule 33 (boolfactor)
 
 
-State 74
+State 77
+
+   39 factor: CAST '(' expression ')' .
+
+    $default  reduce using rule 39 (factor)
+
+
+State 78
 
    24 while_stmt: WHILE create_label $@4 '(' boolexpr ')' . $@5 stmt
 
     $default  reduce using rule 23 ($@5)
 
-    $@5  go to state 77
+    $@5  go to state 81
 
 
-State 75
+State 79
 
    32 boolfactor: NOT '(' boolexpr ')' .
 
     $default  reduce using rule 32 (boolfactor)
 
 
-State 76
+State 80
 
    21 if_stmt: IF create_label '(' boolexpr ')' $@2 stmt . $@3 ELSE stmt
 
     $default  reduce using rule 20 ($@3)
 
-    $@3  go to state 78
+    $@3  go to state 82
 
 
-State 77
+State 81
 
    24 while_stmt: WHILE create_label $@4 '(' boolexpr ')' $@5 . stmt
 
@@ -882,7 +930,7 @@ State 77
     ID      shift, and go to state 15
     '{'     shift, and go to state 4
 
-    stmt             go to state 79
+    stmt             go to state 83
     assignment_stmt  go to state 18
     input_stmt       go to state 19
     output_stmt      go to state 20
@@ -891,21 +939,21 @@ State 77
     stmt_block       go to state 23
 
 
-State 78
+State 82
 
    21 if_stmt: IF create_label '(' boolexpr ')' $@2 stmt $@3 . ELSE stmt
 
-    ELSE  shift, and go to state 80
+    ELSE  shift, and go to state 84
 
 
-State 79
+State 83
 
    24 while_stmt: WHILE create_label $@4 '(' boolexpr ')' $@5 stmt .
 
     $default  reduce using rule 24 (while_stmt)
 
 
-State 80
+State 84
 
    21 if_stmt: IF create_label '(' boolexpr ')' $@2 stmt $@3 ELSE . stmt
 
@@ -916,7 +964,7 @@ State 80
     ID      shift, and go to state 15
     '{'     shift, and go to state 4
 
-    stmt             go to state 81
+    stmt             go to state 85
     assignment_stmt  go to state 18
     input_stmt       go to state 19
     output_stmt      go to state 20
@@ -925,7 +973,7 @@ State 80
     stmt_block       go to state 23
 
 
-State 81
+State 85
 
    21 if_stmt: IF create_label '(' boolexpr ')' $@2 stmt $@3 ELSE stmt .
 

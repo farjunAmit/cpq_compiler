@@ -41,7 +41,8 @@ WHITESPACE [ \t\r]
 "||" {return OR;}
 "&&" {return AND;}
 "!" {return NOT;}
-"static_cast<int>"|"static_cast<float>" {return CAST;}
+"static_cast<int>" {yylval.tval = INTTYPE; return CAST;}
+"static_cast<float>" {yylval.tval = FLOATTYPE; return CAST;}
 {LETTER}({LETTER}|{DIGIT})* {yylval.variable = (char *) malloc(sizeof(char)*(yyleng+1)); strcpy(yylval.variable,yytext); return ID;}
 {DIGIT}+ {yylval.variable = (char *) malloc(sizeof(char)*(yyleng+1)); strcpy(yylval.variable,yytext); return NUM;}
 {DIGIT}+"."{DIGIT}* {yylval.variable = (char *) malloc(sizeof(char)*(yyleng+1)); strcpy(yylval.variable,yytext); return NUM;}
