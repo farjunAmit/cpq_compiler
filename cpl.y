@@ -183,7 +183,7 @@ stmt            :   assignment_stmt
 assignment_stmt :   ID '=' expression ';'
                     { symboleTable temp = searchInTable($1); 
                       char * expressionVariable;
-                      enum typeForNumbers type;
+                      enum typeForNumbers type; 
                       if(temp==NULL)
                         yyerror("not valid ID");
                       else 
