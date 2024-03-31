@@ -1003,8 +1003,8 @@ case 36:
 /* rule 36 can match eol */
 YY_RULE_SETUP
 #line 51 "lexer.l"
-{fprintf (stderr, "line %d: unrecognized token %c\n", 
-                               yylineno, yytext[0]);}
+{fprintf (stderr, "line %d: unrecognized token %s\n", 
+                               yylineno, yytext);}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP

@@ -48,8 +48,8 @@ WHITESPACE [ \t\r]
 {DIGIT}+"."{DIGIT}* {yylval.variable = (char *) malloc(sizeof(char)*(yyleng+1)); strcpy(yylval.variable,yytext); return NUM;}
 ({WHITESPACE}+)
 [\n] 
-{DIGIT}+([^:;,(){}=!<>*+'-'/&\t\r ])+ {fprintf (stderr, "line %d: unrecognized token %c\n", 
-                               yylineno, yytext[0]);}
+{DIGIT}+([^:;,(){}=!<>*+'-'/&\t\r ])+ {fprintf (stderr, "line %d: unrecognized token %s\n", 
+                               yylineno, yytext);}
 . {fprintf (stderr, "line %d: unrecognized token %c\n", 
                                yylineno, yytext[0]);}
 

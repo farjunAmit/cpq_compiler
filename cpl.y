@@ -26,6 +26,7 @@
 
   /*function signature*/
   int digitsInNum(int num);
+  int isFloat(char * number);
   node createNode();
   symboleTable createSymboleTableNode();
   expressionAttribute creatNewExpression();
@@ -50,6 +51,7 @@
   void addRINP(char * id);
   void addIINP(char * id);
   void addJMPZ(label L, tempResult r1);
+  void addRTOI(tempResult rt, char *id);
   void addITOR(tempResult rt, char *id);
   void addRASN(char * id ,char * var);
   void addIASN(char * id ,char * var);
@@ -123,7 +125,7 @@
 
 }
 
-%token <tval> CASE
+%token CASE
 %token DEFAULT
 %token ELSE
 %token <tval> FLOAT
@@ -138,7 +140,7 @@
 %token OR
 %token AND
 %token NOT
-%token CAST
+%token <tval> CAST
 %token <variable> ID
 %token <variable> NUM
 %nterm <lval> create_label
@@ -166,10 +168,15 @@ type            :   INT {enum typeForNumbers i = INTTYPE; $$ = i;}
                 |   FLOAT {enum typeForNumbers f = FLOATTYPE; $$ = f;}
                 ;
 
-idlist          :   idlist ',' ID {endTable -> id = $3; moveEndTable();}
+idlist          :   idlist ',' ID 
+                    { if(searchInTable($3)!=NULL) yyerror("cant use same id twice");
+                      endTable -> id = $3; 
+                      moveEndTable();}
                 |   ID 
-                    {endTable -> id = $1;
-                     moveEndTable();}     
+                    { if(searchInTable($1)!=NULL) yyerror("cant use same id twice");
+                        endTable -> id = $1;
+                        moveEndTable();
+                    }     
                 ;
 
 stmt            :   assignment_stmt
@@ -367,6 +374,7 @@ expression      :   expression ADDOP term
                           $$->type = INTTYPE;
                         } 
                       }
+                      $$ = $1;
                       $$->result = temp;
                     }
                 |   term {$$=$1;}
@@ -403,6 +411,7 @@ term            :   term MULOP factor
                           $$->type = INTTYPE;
                         } 
                       }
+                      $$ = $1;
                       $$->result = temp;
                     }
                 |   factor {$$ = $1;}
@@ -410,24 +419,26 @@ term            :   term MULOP factor
 
 factor          :   '(' expression ')' {$$ = $2;}
                 |   CAST '(' expression ')'
-                    { char *expressionVariable = getExpType($3);
+                    { extern int yylineno;
+                      char *expressionVariable = getExpType($3);
                       tempResult temp = newTemp();
                       if($1 == INTTYPE){
                         if($3 -> type == INTTYPE){
-                          printf("WARNING: in line:%d TRY TO CAST INT TO INT", yylineno);
-                          addIASN(temp,expressionVariable);
+                          printf("WARNING: in line: %d TRY TO CAST INT TO INT\n", yylineno);
+                          addIASN(tempToString(temp),expressionVariable);
                         }
                         else
                           addITOR(temp,expressionVariable);
                       }
                       if($1 == FLOATTYPE){
                         if($3 -> type == FLOATTYPE){
-                          printf("WARNING: in line:%d TRY TO CAST FLAOT TO FLAOT", yylineno);
-                          addRASN(temp,expressionVariable);
+                          printf("WARNING: in line:%d TRY TO CAST FLAOT TO FLAOT\n", yylineno);
+                          addRASN(tempToString(temp),expressionVariable);
                         }
                         else
                           addRTOI(temp,expressionVariable);
                       }
+                      $$ = $3;
                       $$ -> result = temp;
                       $$ ->type = $1; 
                     }
@@ -569,6 +580,7 @@ tempResult newTemp(){
   temp = (tempResult)malloc(sizeof(struct tempResults));
   temp -> number = ++temp_result_counter;
   temp -> name = "t";
+  while(searchInTable(tempToString(temp))!=NULL) temp -> number = ++temp_result_counter;
   return temp;
 }
 char *tempForCasting(char *id){
@@ -595,10 +607,9 @@ int digitsInNum(int num){
 
 int isFloat(char *number){
   char * currentNum = number;
-  while(currentNum != "\0"){
-    if(currentNum[0] == '.') return 1;
-    currentNum++;
-  }
+  for(char * currentNum = number; *currentNum != '\0'; currentNum++)
+    if(*currentNum == '.')
+      return 1;
   return 0;
 }
 
@@ -660,6 +671,14 @@ void addITOR(tempResult rt, char *id){
   sprintf(last->cplCommand,"\tITOR %s%d %s\n", rt->name, rt->number, id);
   moveLast();
 }
+
+void addRTOI(tempResult rt, char *id){
+  int tempDigits = digitsInNum(rt -> number);
+  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(id)+STRLEN_FOR_CPL_2VAR + 1));
+  sprintf(last->cplCommand,"\tRTOI %s%d %s\n", rt->name, rt->number, id);
+  moveLast();
+}
+
 void addRADD(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
   last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
@@ -773,8 +792,8 @@ void addIGRT(tempResult rt, char * var1, char *var2){
 void addLabel(label L)
 {
   int labelDigits = digitsInNum(L->number);
-  last->cplCommand = (char *)malloc(sizeof(char)*(labelDigits+STRLEN_FOR_LABELS+1));
-  sprintf(last->cplCommand,"%c%d: ",L->l, L->number);
+  last->cplCommand = (char *)malloc(sizeof(char)*(labelDigits+STRLEN_FOR_LABELS+2));
+  sprintf(last->cplCommand,"%c%d:\n",L->l, L->number);
   moveLast();
 }
 
