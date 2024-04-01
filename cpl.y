@@ -6,6 +6,7 @@
   #define STRLEN_FOR_CPL_2VAR 8
   #define STRLEN_FOR_CPL_3VAR 9
   #define STRLEN_FOR_LABELS 2
+  #define GET_FILE_NAME_LENGTH(filename) strlen(filename) + 5
   extern int yylex (void);
   void yyerror (const char *s);
 
@@ -459,6 +460,10 @@ create_label    :   /*empty*/ { $$ = newLabel();}
 int main (int argc, char **argv)
 {
   extern FILE *yyin; /* defined by flex */
+  FILE *qudFile;
+  char *sourceFileName;
+  char *fileType;
+  char targetFileName[GET_FILE_NAME_LENGTH(argv[1])];
   head = createNode();
   last = head;
   startTable = createSymboleTableNode();
@@ -472,21 +477,27 @@ int main (int argc, char **argv)
        fprintf (stderr, "failed to open %s\n", argv[1]);
 	   return 2;
   }
-#if 0
 
-#ifdef YYDEBUG
-   yydebug = 1;
-#endif
-#endif
+  sourceFileName = strtok(argv[1],".");
+  fileType = strtok(NULL,"");
+  if(strcmp(fileType,"ou")){
+    fprintf(stderr,"failed to open %s.%s, file name have to end with ou\n", argv[1],fileType);
+    return 3;
+  } 
+
   yyparse ();
 /*print the list*/
   if(!errorCheck){
+    strcpy(targetFileName,sourceFileName);
+    strcpy(targetFileName+strlen(sourceFileName),".qud");
+    qudFile = fopen(targetFileName,"w");
     while(head != NULL){
-      printf("%s", head->cplCommand);
+      fprintf(qudFile,"%s", head->cplCommand);
       head = head -> next;
     }
-    printf("Amit Farjun\n");
   }
+  fprintf(qudFile,"Amit Farjun");
+  fprintf(stderr,"Amit Farjun\n");
   fclose (yyin);
   return 0;
 }
