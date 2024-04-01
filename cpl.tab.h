@@ -41,7 +41,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2058 of yacc.c  */
-#line 89 "cpl.y"
+#line 90 "cpl.y"
 
     enum typeForNumbers {INTTYPE, FLOATTYPE};
     enum operator{PLUS, MINUS, MUL, DIV};
@@ -105,7 +105,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 117 "cpl.y"
+#line 118 "cpl.y"
 
     booleanAttribute boolAtt; 
     expressionAttribute expAtt;

@@ -95,7 +95,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
-#line 89 "cpl.y"
+#line 90 "cpl.y"
 
     enum typeForNumbers {INTTYPE, FLOATTYPE};
     enum operator{PLUS, MINUS, MUL, DIV};
@@ -159,7 +159,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 117 "cpl.y"
+#line 118 "cpl.y"
 
     booleanAttribute boolAtt; 
     expressionAttribute expAtt;
@@ -233,6 +233,7 @@ int yyparse ();
   /*end define struct and enums*/
 
   /*function signature*/
+  void wirteCPLtoFile(FILE *targerFile);
   int digitsInNum(int num);
   int isFloat(char * number);
   node createNode();
@@ -294,7 +295,7 @@ int yyparse ();
 
 
 /* Line 391 of yacc.c  */
-#line 298 "cpl.tab.c"
+#line 299 "cpl.tab.c"
 
 #ifdef short
 # undef short
@@ -599,11 +600,11 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   154,   154,   159,   160,   163,   163,   168,   169,   172,
-     176,   183,   184,   185,   186,   187,   188,   191,   214,   229,
-     239,   241,   239,   248,   249,   248,   255,   257,   258,   261,
-     267,   269,   275,   278,   282,   347,   381,   384,   418,   421,
-     422,   446,   454,   457
+       0,   155,   155,   160,   161,   164,   164,   169,   170,   173,
+     177,   184,   185,   186,   187,   188,   189,   192,   215,   230,
+     240,   242,   240,   249,   250,   249,   256,   258,   259,   262,
+     268,   270,   276,   279,   283,   348,   382,   385,   419,   422,
+     423,   447,   455,   458
 };
 #endif
 
@@ -1550,38 +1551,38 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 155 "cpl.y"
+#line 156 "cpl.y"
     { last -> cplCommand = (char *) malloc(sizeof(char)*strlen("\tHALT\n\0"));
                       strcpy(last -> cplCommand,"\tHALT\n");}
     break;
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 163 "cpl.y"
+#line 164 "cpl.y"
     {currentSymbole = endTable;}
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 165 "cpl.y"
+#line 166 "cpl.y"
     {updateType(currentSymbole, (yyvsp[(4) - (5)].tval));}
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 168 "cpl.y"
+#line 169 "cpl.y"
     {enum typeForNumbers i = INTTYPE; (yyval.tval) = i;}
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 169 "cpl.y"
+#line 170 "cpl.y"
     {enum typeForNumbers f = FLOATTYPE; (yyval.tval) = f;}
     break;
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 173 "cpl.y"
+#line 174 "cpl.y"
     { if(searchInTable((yyvsp[(3) - (3)].variable))!=NULL) yyerror("cant use same id twice");
                       endTable -> id = (yyvsp[(3) - (3)].variable); 
                       moveEndTable();}
@@ -1589,7 +1590,7 @@ yyreduce:
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 177 "cpl.y"
+#line 178 "cpl.y"
     { if(searchInTable((yyvsp[(1) - (1)].variable))!=NULL) yyerror("cant use same id twice");
                         endTable -> id = (yyvsp[(1) - (1)].variable);
                         moveEndTable();
@@ -1598,7 +1599,7 @@ yyreduce:
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 192 "cpl.y"
+#line 193 "cpl.y"
     { symboleTable temp = searchInTable((yyvsp[(1) - (4)].variable)); 
                       char * expressionVariable;
                       enum typeForNumbers type; 
@@ -1623,7 +1624,7 @@ yyreduce:
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 215 "cpl.y"
+#line 216 "cpl.y"
     { symboleTable temp = searchInTable((yyvsp[(3) - (5)].variable)); 
                       enum typeForNumbers type;
                       if(temp==NULL)
@@ -1640,7 +1641,7 @@ yyreduce:
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 230 "cpl.y"
+#line 231 "cpl.y"
     { char * expressionVariable;
                       expressionVariable = getExpType((yyvsp[(3) - (5)].expAtt));
                       if((yyvsp[(3) - (5)].expAtt) -> type == FLOATTYPE)
@@ -1652,45 +1653,45 @@ yyreduce:
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 239 "cpl.y"
+#line 240 "cpl.y"
     {addJMPZ((yyvsp[(4) - (5)].boolAtt) -> conditionLabel, (yyvsp[(4) - (5)].boolAtt)->result);}
     break;
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 241 "cpl.y"
+#line 242 "cpl.y"
     {addJUMP((yyvsp[(2) - (7)].lval));
                       addLabel((yyvsp[(4) - (7)].boolAtt)->conditionLabel);}
     break;
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 245 "cpl.y"
+#line 246 "cpl.y"
     {addLabel((yyvsp[(2) - (10)].lval));}
     break;
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 248 "cpl.y"
+#line 249 "cpl.y"
     {addLabel((yyvsp[(2) - (2)].lval));}
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 249 "cpl.y"
+#line 250 "cpl.y"
     {addJMPZ((yyvsp[(5) - (6)].boolAtt) -> conditionLabel, (yyvsp[(5) - (6)].boolAtt)->result);}
     break;
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 251 "cpl.y"
+#line 252 "cpl.y"
     { addJUMP((yyvsp[(2) - (8)].lval));
                       addLabel((yyvsp[(5) - (8)].boolAtt)->conditionLabel);}
     break;
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 262 "cpl.y"
+#line 263 "cpl.y"
     {
                       addIADD((yyvsp[(1) - (3)].boolAtt)->result,tempToString((yyvsp[(1) - (3)].boolAtt)->result), tempToString((yyvsp[(3) - (3)].boolAtt)->result));
                       addIGRT((yyvsp[(1) - (3)].boolAtt)->result,tempToString((yyvsp[(1) - (3)].boolAtt)->result),"0");
@@ -1700,13 +1701,13 @@ yyreduce:
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 267 "cpl.y"
+#line 268 "cpl.y"
     {(yyval.boolAtt)=(yyvsp[(1) - (1)].boolAtt);}
     break;
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 270 "cpl.y"
+#line 271 "cpl.y"
     {
                       addIADD((yyvsp[(1) - (3)].boolAtt)->result,tempToString((yyvsp[(1) - (3)].boolAtt)->result), tempToString((yyvsp[(3) - (3)].boolAtt)->result));
                       addIEQL((yyvsp[(1) - (3)].boolAtt)->result,tempToString((yyvsp[(1) - (3)].boolAtt)->result),"2");
@@ -1716,13 +1717,13 @@ yyreduce:
 
   case 32:
 /* Line 1792 of yacc.c  */
-#line 275 "cpl.y"
+#line 276 "cpl.y"
     {(yyval.boolAtt)=(yyvsp[(1) - (1)].boolAtt);}
     break;
 
   case 33:
 /* Line 1792 of yacc.c  */
-#line 279 "cpl.y"
+#line 280 "cpl.y"
     { addIEQL((yyvsp[(3) - (4)].boolAtt)->result,tempToString((yyvsp[(3) - (4)].boolAtt)->result),"0");
                       (yyval.boolAtt)=(yyvsp[(3) - (4)].boolAtt);
                     }
@@ -1730,7 +1731,7 @@ yyreduce:
 
   case 34:
 /* Line 1792 of yacc.c  */
-#line 283 "cpl.y"
+#line 284 "cpl.y"
     { (yyval.boolAtt)=creatNewBool();
                       char *expressionVariable1, *expressionVariable2;
                       int isFlaot = 0;
@@ -1797,7 +1798,7 @@ yyreduce:
 
   case 35:
 /* Line 1792 of yacc.c  */
-#line 348 "cpl.y"
+#line 349 "cpl.y"
     { char *termVariable, *expressionVariable;
                       tempResult temp = newTemp();
                       expressionVariable = getExpType((yyvsp[(1) - (3)].expAtt));
@@ -1835,13 +1836,13 @@ yyreduce:
 
   case 36:
 /* Line 1792 of yacc.c  */
-#line 381 "cpl.y"
+#line 382 "cpl.y"
     {(yyval.expAtt)=(yyvsp[(1) - (1)].expAtt);}
     break;
 
   case 37:
 /* Line 1792 of yacc.c  */
-#line 385 "cpl.y"
+#line 386 "cpl.y"
     { char *termVariable, *factorVariable;
                       tempResult temp = newTemp();
                       termVariable = getExpType((yyvsp[(1) - (3)].expAtt));
@@ -1879,19 +1880,19 @@ yyreduce:
 
   case 38:
 /* Line 1792 of yacc.c  */
-#line 418 "cpl.y"
+#line 419 "cpl.y"
     {(yyval.expAtt) = (yyvsp[(1) - (1)].expAtt);}
     break;
 
   case 39:
 /* Line 1792 of yacc.c  */
-#line 421 "cpl.y"
+#line 422 "cpl.y"
     {(yyval.expAtt) = (yyvsp[(2) - (3)].expAtt);}
     break;
 
   case 40:
 /* Line 1792 of yacc.c  */
-#line 423 "cpl.y"
+#line 424 "cpl.y"
     { extern int yylineno;
                       char *expressionVariable = getExpType((yyvsp[(3) - (4)].expAtt));
                       tempResult temp = newTemp();
@@ -1919,7 +1920,7 @@ yyreduce:
 
   case 41:
 /* Line 1792 of yacc.c  */
-#line 446 "cpl.y"
+#line 447 "cpl.y"
     {(yyval.expAtt) = creatNewExpression();
                         (yyval.expAtt)->variable = (yyvsp[(1) - (1)].variable);
                         (yyval.expAtt) -> result = NULL;
@@ -1932,19 +1933,19 @@ yyreduce:
 
   case 42:
 /* Line 1792 of yacc.c  */
-#line 454 "cpl.y"
+#line 455 "cpl.y"
     {(yyval.expAtt)=creatNewExpression(); (yyval.expAtt)->type = (isFloat((yyvsp[(1) - (1)].variable))) ? FLOATTYPE : INTTYPE; (yyval.expAtt)->variable = (yyvsp[(1) - (1)].variable);}
     break;
 
   case 43:
 /* Line 1792 of yacc.c  */
-#line 457 "cpl.y"
+#line 458 "cpl.y"
     { (yyval.lval) = newLabel();}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1948 "cpl.tab.c"
+#line 1949 "cpl.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2176,7 +2177,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 459 "cpl.y"
+#line 460 "cpl.y"
 
 int main (int argc, char **argv)
 {
@@ -2212,16 +2213,20 @@ int main (int argc, char **argv)
     strcpy(targetFileName,sourceFileName);
     strcpy(targetFileName+strlen(sourceFileName),".qud");
     qudFile = fopen(targetFileName,"w");
-    while(head != NULL){
-      fprintf(qudFile,"%s", head->cplCommand);
-      head = head -> next;
-    }
+    wirteCPLtoFile(qudFile);
   }
+
   fprintf(qudFile,"Amit Farjun");
   fprintf(stderr,"Amit Farjun\n");
   fclose (yyin);
   return 0;
 }
+
+void wirteCPLtoFile(FILE *targerFile){
+  while(head != NULL){
+    fprintf(targerFile,"%s", head->cplCommand);
+    head = head -> next;}
+  }
 
 node createNode(){
   node temp; 

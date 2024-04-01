@@ -26,6 +26,7 @@
   /*end define struct and enums*/
 
   /*function signature*/
+  void wirteCPLtoFile(FILE *targerFile);
   int digitsInNum(int num);
   int isFloat(char * number);
   node createNode();
@@ -491,16 +492,20 @@ int main (int argc, char **argv)
     strcpy(targetFileName,sourceFileName);
     strcpy(targetFileName+strlen(sourceFileName),".qud");
     qudFile = fopen(targetFileName,"w");
-    while(head != NULL){
-      fprintf(qudFile,"%s", head->cplCommand);
-      head = head -> next;
-    }
+    wirteCPLtoFile(qudFile);
   }
+
   fprintf(qudFile,"Amit Farjun");
   fprintf(stderr,"Amit Farjun\n");
   fclose (yyin);
   return 0;
 }
+
+void wirteCPLtoFile(FILE *targerFile){
+  while(head != NULL){
+    fprintf(targerFile,"%s", head->cplCommand);
+    head = head -> next;}
+  }
 
 node createNode(){
   node temp; 
