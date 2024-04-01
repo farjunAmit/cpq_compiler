@@ -76,11 +76,11 @@
   /*end cpl function signature*/
 
   /*global variable*/
-  node head;
-  node last;
-  symboleTable startTable;
+  node head = createNode();
+  node last = head;
+  symboleTable startTable = createSymboleTableNode();
   symboleTable currentSymbole;
-  symboleTable endTable;
+  symboleTable endTable = startTable;
   int errorCheck = 0;
   int label_counter = 0;
   int temp_result_counter = 0;
