@@ -540,7 +540,7 @@ char *yytext;
 #line 2 "lexer.l"
 #include <stdio.h>
 #include <string.h>
-#include "cpl.tab.h"
+#include "parser.tab.h"
 
 #line 546 "lex.yy.c"
 

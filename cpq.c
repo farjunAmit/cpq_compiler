@@ -1,17 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "cpl.tab.h"
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <string.h>
+  #include "parser.tab.h"
+  #define GET_FILE_NAME_LENGTH(filename) strlen(filename) + 5
 int main (int argc, char **argv)
 {
   extern FILE *yyin; /* defined by flex */
   char *sourceFileName;
   char *fileType;
   char targetFileName[GET_FILE_NAME_LENGTH(argv[1])];
-  head = createNode();
-  last = head;
-  startTable = createSymboleTableNode();
-  endTable = startTable;
   
   if (argc != 2) {
      fprintf (stderr, "Usage: %s <input-file-name>\n", argv[0]);

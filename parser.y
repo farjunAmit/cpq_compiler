@@ -26,7 +26,6 @@
   /*end define struct and enums*/
 
   /*function signature*/
-  void wirteCPLtoFile(char *targerFileName);
   int digitsInNum(int num);
   int isFloat(char * number);
   node createNode();
@@ -88,31 +87,31 @@
 }
 
 %code requires{
-    enum typeForNumbers {INTTYPE, FLOATTYPE};
-    enum operator{PLUS, MINUS, MUL, DIV};
-    enum comparisonOperator{EQUAL, NOTEQUAL, SMALL, BIG, SEQUAL, BEQUAL};
+  void wirteCPLtoFile(char *targerFileName);
+  enum typeForNumbers {INTTYPE, FLOATTYPE};
+  enum operator{PLUS, MINUS, MUL, DIV};
+  enum comparisonOperator{EQUAL, NOTEQUAL, SMALL, BIG, SEQUAL, BEQUAL};
 
-    typedef struct labels {
+  typedef struct labels {
     int number;
     char l;
-    }* label;
+  }* label;
 
-    typedef struct tempResults{
-      int number;
-      char * name;
-    }*tempResult;
+  typedef struct tempResults{
+    int number;
+    char * name;
+  }*tempResult;
 
-    /*אני צריך להוסיף מבנה לכל משתנה גזירה */
-    typedef struct structForBoolean{
-      label conditionLabel;
-      tempResult result;
-    }*booleanAttribute;
+  typedef struct structForBoolean{
+    label conditionLabel;
+    tempResult result;
+  }*booleanAttribute;
 
-    typedef struct structForExpression{
-      char *variable;
-      enum typeForNumbers type;
-      tempResult result;
-    }*expressionAttribute;
+  typedef struct structForExpression{
+    char *variable;
+    enum typeForNumbers type;
+    tempResult result;
+  }*expressionAttribute;
 }
 
 %union {
@@ -124,7 +123,6 @@
     enum typeForNumbers tval;
     enum operator modifierOpp;
     enum comparisonOperator compraisonOpp;
-
 }
 
 %token CASE
@@ -152,7 +150,11 @@
 /*%define parse.error verbose*/
 
 %%
-program         :   declarations stmt_block 
+program         :   { head = createNode();
+                      last = head;
+                      startTable = createSymboleTableNode();
+                      endTable = startTable;}
+                    declarations stmt_block 
                     { last -> cplCommand = (char *) malloc(sizeof(char)*strlen("\tHALT\n\0"));
                       strcpy(last -> cplCommand,"\tHALT\n");}
                 ;
@@ -458,43 +460,6 @@ factor          :   '(' expression ')' {$$ = $2;}
 create_label    :   /*empty*/ { $$ = newLabel();}
                 ;
 %%
-int main (int argc, char **argv)
-{
-  extern FILE *yyin; /* defined by flex */
-  char *sourceFileName;
-  char *fileType;
-  char targetFileName[GET_FILE_NAME_LENGTH(argv[1])];
-  head = createNode();
-  last = head;
-  startTable = createSymboleTableNode();
-  endTable = startTable;
-  
-  if (argc != 2) {
-     fprintf (stderr, "Usage: %s <input-file-name>\n", argv[0]);
-	 return 1;
-  }
-  yyin = fopen (argv [1], "r");
-  if (yyin == NULL) {
-       fprintf (stderr, "failed to open %s\n", argv[1]);
-	   return 2;
-  }
-
-  sourceFileName = strtok(argv[1],".");
-  fileType = strtok(NULL,"");
-  if(strcmp(fileType,"ou")){
-    fprintf(stderr,"failed to open %s.%s, file name have to end with ou\n", argv[1],fileType);
-    return 3;
-  } 
-
-  yyparse ();
-
-/*print the list*/
-  strcpy(targetFileName,sourceFileName);
-  strcpy(targetFileName+strlen(sourceFileName),".qud");
-  wirteCPLtoFile(targetFileName);
-  fclose (yyin);
-  return 0;
-}
 
 void wirteCPLtoFile(char *targetFileName){
   FILE *qudFile;

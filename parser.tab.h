@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_CPL_TAB_H_INCLUDED
-# define YY_YY_CPL_TAB_H_INCLUDED
+#ifndef YY_YY_PARSER_TAB_H_INCLUDED
+# define YY_YY_PARSER_TAB_H_INCLUDED
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -41,37 +41,37 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2058 of yacc.c  */
-#line 90 "cpl.y"
+#line 89 "parser.y"
 
-    enum typeForNumbers {INTTYPE, FLOATTYPE};
-    enum operator{PLUS, MINUS, MUL, DIV};
-    enum comparisonOperator{EQUAL, NOTEQUAL, SMALL, BIG, SEQUAL, BEQUAL};
+  void wirteCPLtoFile(char *targerFileName);
+  enum typeForNumbers {INTTYPE, FLOATTYPE};
+  enum operator{PLUS, MINUS, MUL, DIV};
+  enum comparisonOperator{EQUAL, NOTEQUAL, SMALL, BIG, SEQUAL, BEQUAL};
 
-    typedef struct labels {
+  typedef struct labels {
     int number;
     char l;
-    }* label;
+  }* label;
 
-    typedef struct tempResults{
-      int number;
-      char * name;
-    }*tempResult;
+  typedef struct tempResults{
+    int number;
+    char * name;
+  }*tempResult;
 
-    /*אני צריך להוסיף מבנה לכל משתנה גזירה */
-    typedef struct structForBoolean{
-      label conditionLabel;
-      tempResult result;
-    }*booleanAttribute;
+  typedef struct structForBoolean{
+    label conditionLabel;
+    tempResult result;
+  }*booleanAttribute;
 
-    typedef struct structForExpression{
-      char *variable;
-      enum typeForNumbers type;
-      tempResult result;
-    }*expressionAttribute;
+  typedef struct structForExpression{
+    char *variable;
+    enum typeForNumbers type;
+    tempResult result;
+  }*expressionAttribute;
 
 
 /* Line 2058 of yacc.c  */
-#line 75 "cpl.tab.h"
+#line 75 "parser.tab.h"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -105,7 +105,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 118 "cpl.y"
+#line 117 "parser.y"
 
     booleanAttribute boolAtt; 
     expressionAttribute expAtt;
@@ -117,9 +117,8 @@ typedef union YYSTYPE
     enum comparisonOperator compraisonOpp;
 
 
-
 /* Line 2058 of yacc.c  */
-#line 123 "cpl.tab.h"
+#line 122 "parser.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -142,4 +141,4 @@ int yyparse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
 
-#endif /* !YY_YY_CPL_TAB_H_INCLUDED  */
+#endif /* !YY_YY_PARSER_TAB_H_INCLUDED  */
