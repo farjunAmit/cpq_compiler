@@ -41,28 +41,33 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2058 of yacc.c  */
-#line 89 "parser.y"
+#line 94 "parser.y"
 
-  void wirteCPLtoFile(char *targerFileName);
-  enum typeForNumbers {INTTYPE, FLOATTYPE};
-  enum operator{PLUS, MINUS, MUL, DIV};
-  enum comparisonOperator{EQUAL, NOTEQUAL, SMALL, BIG, SEQUAL, BEQUAL};
+  void wirteCPLtoFile(char *targerFileName);/*this function signature is here for main to use*/
 
+  enum typeForNumbers {INTTYPE, FLOATTYPE};/* enum to save numbers type*/
+  enum operator{PLUS, MINUS, MUL, DIV};/*enums to save operator type*/
+  enum comparisonOperator{EQUAL, NOTEQUAL, SMALL, BIG, SEQUAL, BEQUAL};/*enums to save comparison operator type*/
+
+  /*new type - labels: label consist of number and the letter 'L'*/
   typedef struct labels {
     int number;
     char l;
   }* label;
 
+  /*new type - tempResult: tempResult consist of the number of the temp and his name*/
   typedef struct tempResults{
     int number;
     char * name;
   }*tempResult;
 
+  /*new type - booleanAttribute: this struct can save the information for boolean stmt*/
   typedef struct structForBoolean{
     label conditionLabel;
     tempResult result;
   }*booleanAttribute;
 
+  /*new type - expressionAttribute: this struct can save the information for expression stmt*/
   typedef struct structForExpression{
     char *variable;
     enum typeForNumbers type;
@@ -71,7 +76,7 @@ extern int yydebug;
 
 
 /* Line 2058 of yacc.c  */
-#line 75 "parser.tab.h"
+#line 80 "parser.tab.h"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -105,7 +110,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 117 "parser.y"
+#line 127 "parser.y"
 
     booleanAttribute boolAtt; 
     expressionAttribute expAtt;
@@ -118,7 +123,7 @@ typedef union YYSTYPE
 
 
 /* Line 2058 of yacc.c  */
-#line 122 "parser.tab.h"
+#line 127 "parser.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

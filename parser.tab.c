@@ -95,28 +95,33 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
-#line 89 "parser.y"
+#line 94 "parser.y"
 
-  void wirteCPLtoFile(char *targerFileName);
-  enum typeForNumbers {INTTYPE, FLOATTYPE};
-  enum operator{PLUS, MINUS, MUL, DIV};
-  enum comparisonOperator{EQUAL, NOTEQUAL, SMALL, BIG, SEQUAL, BEQUAL};
+  void wirteCPLtoFile(char *targerFileName);/*this function signature is here for main to use*/
 
+  enum typeForNumbers {INTTYPE, FLOATTYPE};/* enum to save numbers type*/
+  enum operator{PLUS, MINUS, MUL, DIV};/*enums to save operator type*/
+  enum comparisonOperator{EQUAL, NOTEQUAL, SMALL, BIG, SEQUAL, BEQUAL};/*enums to save comparison operator type*/
+
+  /*new type - labels: label consist of number and the letter 'L'*/
   typedef struct labels {
     int number;
     char l;
   }* label;
 
+  /*new type - tempResult: tempResult consist of the number of the temp and his name*/
   typedef struct tempResults{
     int number;
     char * name;
   }*tempResult;
 
+  /*new type - booleanAttribute: this struct can save the information for boolean stmt*/
   typedef struct structForBoolean{
     label conditionLabel;
     tempResult result;
   }*booleanAttribute;
 
+  /*new type - expressionAttribute: this struct can save the information for expression stmt*/
   typedef struct structForExpression{
     char *variable;
     enum typeForNumbers type;
@@ -125,7 +130,7 @@ extern int yydebug;
 
 
 /* Line 387 of yacc.c  */
-#line 129 "parser.tab.c"
+#line 134 "parser.tab.c"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -159,7 +164,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 117 "parser.y"
+#line 127 "parser.y"
 
     booleanAttribute boolAtt; 
     expressionAttribute expAtt;
@@ -172,7 +177,7 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 176 "parser.tab.c"
+#line 181 "parser.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -200,7 +205,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 204 "parser.tab.c"
+#line 209 "parser.tab.c"
 /* Unqualified %code blocks.  */
 /* Line 391 of yacc.c  */
 #line 1 "parser.y"
@@ -212,17 +217,18 @@ int yyparse ();
   #define STRLEN_FOR_CPL_2VAR 8
   #define STRLEN_FOR_CPL_3VAR 9
   #define STRLEN_FOR_LABELS 2
-  #define GET_FILE_NAME_LENGTH(filename) strlen(filename) + 5
   extern int yylex (void);
   void yyerror (const char *s);
 
   /*define structs and enums*/
 
+  /*new type - node: this linked list will save the code in it cpl form, each node is 1 command*/
   typedef struct LinkedList {
     char *cplCommand; 
     struct LinkedList* next;
   }* node;
 
+  /*new type symboleTable: this LinkedList will be used as symboleTable for the variable define in the code*/
   typedef struct LinkedListForSymbole{
     enum typeForNumbers type;
     char * id;
@@ -283,9 +289,13 @@ int yyparse ();
   /*global variable*/
   node head;
   node last;
+  /*globals node - head will save the first element in the cpl list and last will save the last command*/
   symboleTable startTable;
   symboleTable currentSymbole;
   symboleTable endTable;
+  /*globals node - startTable will save the first element in the symboleTable list.
+    last will save the last element in the symboleTable.
+    currentSymbole will save the first symbole that his type has not been update */
   int errorCheck = 0;
   int label_counter = 0;
   int temp_result_counter = 0;
@@ -293,7 +303,7 @@ int yyparse ();
 
 
 /* Line 391 of yacc.c  */
-#line 297 "parser.tab.c"
+#line 307 "parser.tab.c"
 
 #ifdef short
 # undef short
@@ -598,11 +608,11 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   153,   153,   153,   162,   163,   166,   166,   171,   172,
-     175,   179,   186,   187,   188,   189,   190,   191,   194,   217,
-     232,   242,   244,   242,   251,   252,   251,   258,   260,   261,
-     264,   270,   272,   278,   281,   285,   350,   384,   387,   421,
-     424,   425,   449,   457,   460
+       0,   163,   163,   163,   174,   175,   178,   178,   185,   186,
+     189,   194,   202,   203,   204,   205,   206,   207,   210,   235,
+     250,   260,   262,   260,   278,   279,   278,   292,   294,   295,
+     298,   306,   308,   316,   319,   325,   398,   430,   433,   463,
+     466,   467,   491,   499,   502
 };
 #endif
 
@@ -1549,8 +1559,9 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 153 "parser.y"
-    { head = createNode();
+#line 163 "parser.y"
+    { /*Befor we start the parser phase - creat the cpl linked list and the symbole table*/
+                      head = createNode();
                       last = head;
                       startTable = createSymboleTableNode();
                       endTable = startTable;}
@@ -1558,89 +1569,96 @@ yyreduce:
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 158 "parser.y"
-    { last -> cplCommand = (char *) malloc(sizeof(char)*strlen("\tHALT\n\0"));
+#line 169 "parser.y"
+    { /*After the parser phase is over add the HALT commmand to the end of the cpl code*/
+                      last -> cplCommand = (char *) malloc(sizeof(char)*strlen("\tHALT\n\0"));
                       strcpy(last -> cplCommand,"\tHALT\n");}
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 166 "parser.y"
-    {currentSymbole = endTable;}
+#line 178 "parser.y"
+    { /*Save the location of the last element in the list for latter use*/
+                      currentSymbole = endTable;}
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 168 "parser.y"
-    {updateType(currentSymbole, (yyvsp[(4) - (5)].tval));}
+#line 181 "parser.y"
+    { /*After we've gone through all the elements of a certain type, update their type*/
+                      updateType(currentSymbole, (yyvsp[(4) - (5)].tval));}
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 171 "parser.y"
-    {enum typeForNumbers i = INTTYPE; (yyval.tval) = i;}
+#line 185 "parser.y"
+    {enum typeForNumbers i = INTTYPE; (yyval.tval) = i;/*return type*/}
     break;
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 172 "parser.y"
-    {enum typeForNumbers f = FLOATTYPE; (yyval.tval) = f;}
+#line 186 "parser.y"
+    {enum typeForNumbers f = FLOATTYPE; (yyval.tval) = f;/*return type*/}
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 176 "parser.y"
-    { if(searchInTable((yyvsp[(3) - (3)].variable))!=NULL) yyerror("cant use same id twice");
-                      endTable -> id = (yyvsp[(3) - (3)].variable); 
+#line 190 "parser.y"
+    { /*Check if this id already in use*/
+                      if(searchInTable((yyvsp[(3) - (3)].variable))!=NULL) yyerror("cant use same id twice");/*If it does, send error*/
+                      endTable -> id = (yyvsp[(3) - (3)].variable); /*If it doesnt, add him to the symbole table*/ 
                       moveEndTable();}
     break;
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 180 "parser.y"
-    { if(searchInTable((yyvsp[(1) - (1)].variable))!=NULL) yyerror("cant use same id twice");
-                        endTable -> id = (yyvsp[(1) - (1)].variable);
-                        moveEndTable();
+#line 195 "parser.y"
+    { /*Check if this id already in use*/
+                      if(searchInTable((yyvsp[(1) - (1)].variable))!=NULL) yyerror("cant use same id twice");/*If it does, send error*/
+                      endTable -> id = (yyvsp[(1) - (1)].variable);/*If it doesnt, add him to the symbole table*/ 
+                      moveEndTable();/*Move the pointer to the end of the symbole table one space*/
                     }
     break;
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 195 "parser.y"
+#line 211 "parser.y"
     { symboleTable temp = searchInTable((yyvsp[(1) - (4)].variable)); 
-                      char * expressionVariable;
-                      enum typeForNumbers type; 
-                      if(temp==NULL)
-                        yyerror("not valid ID");
-                      else 
+                      char * expressionVariable;/*save the id/temp result from the exprassion*/
+                      enum typeForNumbers type; /*save the type of the expression*/
+                      if(temp==NULL) /*if this id doesnt defined before - send error*/
+                        yyerror("not valid ID"); 
+                      else /*else - start assignment*/
                         {
                           type = temp -> type;
-                          if(type ==  INTTYPE && (yyvsp[(3) - (4)].expAtt)->type == FLOATTYPE)
-                            yyerror("It is not possible to assign a float to an int");
+                          if(type ==  INTTYPE && (yyvsp[(3) - (4)].expAtt)->type == FLOATTYPE) /*if you try to put assign float into int*/
+                            yyerror("It is not possible to assign a float to an int"); /*send error*/
                           else{
-                            expressionVariable = getExpType((yyvsp[(3) - (4)].expAtt));
-                            if(type == FLOATTYPE)
-                              addRASN((yyvsp[(1) - (4)].variable),expressionVariable);
+                            expressionVariable = getExpType((yyvsp[(3) - (4)].expAtt));/*get the right result from exprresion*/
+                            if(type == FLOATTYPE){
+                              if((yyvsp[(3) - (4)].expAtt)->type == INTTYPE)/*if id is float but exprassion is int - do cast to float*/
+                                expressionVariable = tempForCasting(expressionVariable);/*create new temp for the casting action)*/
+                              addRASN((yyvsp[(1) - (4)].variable),expressionVariable); /*assign expression to id*/
+                            } /*if ID is float, start float assinment*/
                             if(type == INTTYPE)
-                              addIASN((yyvsp[(1) - (4)].variable),expressionVariable);
+                              addIASN((yyvsp[(1) - (4)].variable),expressionVariable); /*assign expression to id*/
                           }
-
                         }
                     }
     break;
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 218 "parser.y"
+#line 236 "parser.y"
     { symboleTable temp = searchInTable((yyvsp[(3) - (5)].variable)); 
                       enum typeForNumbers type;
-                      if(temp==NULL)
+                      if(temp==NULL) /*if this id doesnt defined before - send error*/
                         yyerror("not valid ID");
                       else{
                         type = temp -> type;
-                        if(type == FLOATTYPE)
-                          addRINP((yyvsp[(3) - (5)].variable));
-                        if(type == INTTYPE)
+                        if(type == FLOATTYPE) /*if id is float type use float input*/
+                          addRINP((yyvsp[(3) - (5)].variable)); 
+                        if(type == INTTYPE) /*if id is int type use int input*/
                           addIINP((yyvsp[(3) - (5)].variable)); 
                       }
                     }
@@ -1648,58 +1666,60 @@ yyreduce:
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 233 "parser.y"
+#line 251 "parser.y"
     { char * expressionVariable;
-                      expressionVariable = getExpType((yyvsp[(3) - (5)].expAtt));
-                      if((yyvsp[(3) - (5)].expAtt) -> type == FLOATTYPE)
+                      expressionVariable = getExpType((yyvsp[(3) - (5)].expAtt)); /*get exprresion type (id/num/tempResult)*/
+                      if((yyvsp[(3) - (5)].expAtt) -> type == FLOATTYPE) /*if id is float type use float output*/
                         addRPRT(expressionVariable);
                       if((yyvsp[(3) - (5)].expAtt) -> type == INTTYPE)
-                        addIPRT(expressionVariable);
+                        addIPRT(expressionVariable);/*if id is float type use int output*/
                     }
     break;
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 242 "parser.y"
+#line 260 "parser.y"
     {addJMPZ((yyvsp[(4) - (5)].boolAtt) -> conditionLabel, (yyvsp[(4) - (5)].boolAtt)->result);}
     break;
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 244 "parser.y"
+#line 262 "parser.y"
     {addJUMP((yyvsp[(2) - (7)].lval));
                       addLabel((yyvsp[(4) - (7)].boolAtt)->conditionLabel);}
     break;
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 248 "parser.y"
+#line 266 "parser.y"
     {addLabel((yyvsp[(2) - (10)].lval));}
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 251 "parser.y"
+#line 278 "parser.y"
     {addLabel((yyvsp[(2) - (2)].lval));}
     break;
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 252 "parser.y"
+#line 279 "parser.y"
     {addJMPZ((yyvsp[(5) - (6)].boolAtt) -> conditionLabel, (yyvsp[(5) - (6)].boolAtt)->result);}
     break;
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 254 "parser.y"
+#line 281 "parser.y"
     { addJUMP((yyvsp[(2) - (8)].lval));
                       addLabel((yyvsp[(5) - (8)].boolAtt)->conditionLabel);}
     break;
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 265 "parser.y"
+#line 299 "parser.y"
     {
+                      /*to execute "OR" we take the result from boolexpr and boolterm and add them together
+                        if the result is bigger then 0 so at list 1 of them is true, else it false*/
                       addIADD((yyvsp[(1) - (3)].boolAtt)->result,tempToString((yyvsp[(1) - (3)].boolAtt)->result), tempToString((yyvsp[(3) - (3)].boolAtt)->result));
                       addIGRT((yyvsp[(1) - (3)].boolAtt)->result,tempToString((yyvsp[(1) - (3)].boolAtt)->result),"0");
                       (yyval.boolAtt) = (yyvsp[(1) - (3)].boolAtt);
@@ -1708,14 +1728,16 @@ yyreduce:
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 270 "parser.y"
+#line 306 "parser.y"
     {(yyval.boolAtt)=(yyvsp[(1) - (1)].boolAtt);}
     break;
 
   case 32:
 /* Line 1792 of yacc.c  */
-#line 273 "parser.y"
+#line 309 "parser.y"
     {
+                      /*to execute "AND" we take the result from boolterm and boolgactor and add them together
+                      if the result is equal to 2 so both terms is true, else it false*/
                       addIADD((yyvsp[(1) - (3)].boolAtt)->result,tempToString((yyvsp[(1) - (3)].boolAtt)->result), tempToString((yyvsp[(3) - (3)].boolAtt)->result));
                       addIEQL((yyvsp[(1) - (3)].boolAtt)->result,tempToString((yyvsp[(1) - (3)].boolAtt)->result),"2");
                       (yyval.boolAtt) = (yyvsp[(1) - (3)].boolAtt);
@@ -1724,29 +1746,33 @@ yyreduce:
 
   case 33:
 /* Line 1792 of yacc.c  */
-#line 278 "parser.y"
+#line 316 "parser.y"
     {(yyval.boolAtt)=(yyvsp[(1) - (1)].boolAtt);}
     break;
 
   case 34:
 /* Line 1792 of yacc.c  */
-#line 282 "parser.y"
-    { addIEQL((yyvsp[(3) - (4)].boolAtt)->result,tempToString((yyvsp[(3) - (4)].boolAtt)->result),"0");
+#line 320 "parser.y"
+    { /*to execute "NOT" just compare the result to 0.
+                        for example if boolexpr = 0 so the stmt (0==0) return 1, else return 0;*/
+                      addIEQL((yyvsp[(3) - (4)].boolAtt)->result,tempToString((yyvsp[(3) - (4)].boolAtt)->result),"0");
                       (yyval.boolAtt)=(yyvsp[(3) - (4)].boolAtt);
                     }
     break;
 
   case 35:
 /* Line 1792 of yacc.c  */
-#line 286 "parser.y"
-    { (yyval.boolAtt)=creatNewBool();
+#line 326 "parser.y"
+    { (yyval.boolAtt)=creatNewBool(); /*create new bool expresssion*/
                       char *expressionVariable1, *expressionVariable2;
                       int isFlaot = 0;
                       tempResult temp = newTemp();
                       tempResult tempForComplex;
-                      expressionVariable1 = getExpType((yyvsp[(1) - (3)].expAtt));
-                      expressionVariable2 = getExpType((yyvsp[(3) - (3)].expAtt));
+                      expressionVariable1 = getExpType((yyvsp[(1) - (3)].expAtt)); /*get expression 1 type(id/number/result)*/
+                      expressionVariable2 = getExpType((yyvsp[(3) - (3)].expAtt)); /*get expression 2 type(id/number/result)*/
 
+                      /*if one expression is type int and the other one type float - cast the int to float
+                        and set isFloat to true if even on of them is float*/
                       if((yyvsp[(1) - (3)].expAtt)->type == INTTYPE && (yyvsp[(3) - (3)].expAtt) ->type == FLOATTYPE){
                         expressionVariable1 = tempForCasting(expressionVariable1);
                         isFlaot = 1;
@@ -1757,149 +1783,149 @@ yyreduce:
                       }
                       if((yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE && (yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE) isFlaot = 1;
 
+                      /*add the command for floats*/
                       if(isFlaot){
-                        if((yyvsp[(2) - (3)].compraisonOpp) == EQUAL)
+                        if((yyvsp[(2) - (3)].compraisonOpp) == EQUAL) /*the == operator*/
                           addREQL(temp,expressionVariable1,expressionVariable2);
-                        if((yyvsp[(2) - (3)].compraisonOpp) ==  NOTEQUAL)
+                        if((yyvsp[(2) - (3)].compraisonOpp) ==  NOTEQUAL) /*the != operator*/
                           addRNQL(temp,expressionVariable1,expressionVariable2);
-                        if((yyvsp[(2) - (3)].compraisonOpp) == SMALL)
+                        if((yyvsp[(2) - (3)].compraisonOpp) == SMALL) /*the < operator*/
                           addRLSS(temp,expressionVariable1,expressionVariable2); 
-                        if((yyvsp[(2) - (3)].compraisonOpp) == BIG)
-                          addRGRT(temp,expressionVariable1,expressionVariable2); 
-                        if((yyvsp[(2) - (3)].compraisonOpp) ==  SEQUAL){
+                        if((yyvsp[(2) - (3)].compraisonOpp) == BIG) /*the > operator*/
+                          addRGRT(temp,expressionVariable1,expressionVariable2);
+                        if((yyvsp[(2) - (3)].compraisonOpp) ==  SEQUAL){ /*the <= operator*/
+                          /*to execute <= we create a new temp the hold the add value of the 
+                          small then...and equal to... if one of them is true the sum will be 1 else it will be 0*/ 
                           tempForComplex = newTemp();
                           addREQL(temp,expressionVariable1,expressionVariable2);
                           addRLSS(tempForComplex, expressionVariable1,expressionVariable2);
                           addIADD(temp,tempToString(tempForComplex), tempToString(temp));
                         }
-                        if((yyvsp[(2) - (3)].compraisonOpp) == BEQUAL){
+                        if((yyvsp[(2) - (3)].compraisonOpp) == BEQUAL){/* the >= operator*/
+                          /*to execute >= we create a new temp the hold the add value of the 
+                          biger then...and equal to... if one of them is true the sum will be 1 else it will be 0*/ 
                           tempForComplex = newTemp();
                           addREQL(temp,expressionVariable1,expressionVariable2);
                           addRGRT(tempForComplex, expressionVariable1,expressionVariable2);
                           addIADD(temp,tempToString(tempForComplex), tempToString(temp));
                         }
                       }
+                       /*add the command for int*/
                       else{
-                        if((yyvsp[(2) - (3)].compraisonOpp) == EQUAL)
+                        if((yyvsp[(2) - (3)].compraisonOpp) == EQUAL)/*the == operator*/
                           addIEQL(temp,expressionVariable1,expressionVariable2);
-                        if((yyvsp[(2) - (3)].compraisonOpp) ==  NOTEQUAL)
+                        if((yyvsp[(2) - (3)].compraisonOpp) ==  NOTEQUAL)/*the != operator*/
                           addINQL(temp,expressionVariable1,expressionVariable2);
-                        if((yyvsp[(2) - (3)].compraisonOpp) == SMALL)
+                        if((yyvsp[(2) - (3)].compraisonOpp) == SMALL)/*the < operator*/
                           addILSS(temp,expressionVariable1,expressionVariable2); 
-                        if((yyvsp[(2) - (3)].compraisonOpp) == BIG)
+                        if((yyvsp[(2) - (3)].compraisonOpp) == BIG)/*the > operator*/
                           addIGRT(temp,expressionVariable1,expressionVariable2); 
-                        if((yyvsp[(2) - (3)].compraisonOpp) ==  SEQUAL){
+                        if((yyvsp[(2) - (3)].compraisonOpp) ==  SEQUAL){/*the <= operator*/
                           addIEQL(temp,expressionVariable1,expressionVariable2);
                           addILSS(tempForComplex, expressionVariable1,expressionVariable2);
                           addIADD(temp,tempToString(tempForComplex), tempToString(temp)); 
                         }
-                        if((yyvsp[(2) - (3)].compraisonOpp) == BEQUAL){
+                        if((yyvsp[(2) - (3)].compraisonOpp) == BEQUAL){/* the >= operator*/
                           addIEQL(temp,expressionVariable1,expressionVariable2);
                           addIGRT(tempForComplex, expressionVariable1,expressionVariable2);
                           addIADD(temp,tempToString(tempForComplex), tempToString(temp));
                         }
                       }
-                      (yyval.boolAtt)->result=temp;
+                      (yyval.boolAtt)->result=temp; /*return the temp that hold the reusld of the stmt*/
                     }
     break;
 
   case 36:
 /* Line 1792 of yacc.c  */
-#line 351 "parser.y"
+#line 399 "parser.y"
     { char *termVariable, *expressionVariable;
+                      enum typeForNumbers type = INTTYPE;
                       tempResult temp = newTemp();
-                      expressionVariable = getExpType((yyvsp[(1) - (3)].expAtt));
-                      termVariable = getExpType((yyvsp[(3) - (3)].expAtt));
+                      expressionVariable = getExpType((yyvsp[(1) - (3)].expAtt)); /*get expression type for expression*/
+                      termVariable = getExpType((yyvsp[(3) - (3)].expAtt)); /*get expression type for term*/
 
-                      if((yyvsp[(2) - (3)].modifierOpp)==PLUS){
-                        if((yyvsp[(1) - (3)].expAtt)->type == FLOATTYPE || (yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE){
-                          if((yyvsp[(1) - (3)].expAtt)->type == INTTYPE) expressionVariable = tempForCasting(expressionVariable);
-                          if((yyvsp[(3) - (3)].expAtt)->type == INTTYPE) termVariable = tempForCasting(termVariable);
-                          addRADD(temp, expressionVariable, termVariable);
-                          (yyval.expAtt)->type = FLOATTYPE;
-                        }
-                        else{
-                          addIADD(temp, expressionVariable, termVariable);
-                          (yyval.expAtt)->type = INTTYPE;
-                        } 
+                      /*if one of them is float - check if the other one is int. if it does do casting 
+                      befor continue. Anyway set type to float*/
+                      if((yyvsp[(1) - (3)].expAtt)->type == FLOATTYPE || (yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE){
+                        if((yyvsp[(1) - (3)].expAtt)->type == INTTYPE) expressionVariable = tempForCasting(expressionVariable);/*get tem result after casting*/
+                        if((yyvsp[(3) - (3)].expAtt)->type == INTTYPE) termVariable = tempForCasting(termVariable); /*get tem result after casting*/
+                        type = FLOATTYPE;
                       }
 
-                      if((yyvsp[(2) - (3)].modifierOpp)==MINUS){
-                        if((yyvsp[(1) - (3)].expAtt)->type == FLOATTYPE || (yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE){
-                          if((yyvsp[(1) - (3)].expAtt)->type == INTTYPE) expressionVariable = tempForCasting(expressionVariable);
-                          if((yyvsp[(3) - (3)].expAtt)->type == INTTYPE) termVariable = tempForCasting(termVariable);
+                      if((yyvsp[(2) - (3)].modifierOpp)==PLUS){/*for + operator*/
+                        if(type == FLOATTYPE)
+                          addRADD(temp, expressionVariable, termVariable);
+                        else
+                          addIADD(temp, expressionVariable, termVariable);
+                      } 
+
+                      if((yyvsp[(2) - (3)].modifierOpp)==MINUS){/*for - operator*/
+                        if(type == FLOATTYPE)
                           addRSUB(temp, expressionVariable, termVariable);
-                          (yyval.expAtt)->type = FLOATTYPE;
-                        }
-                        else{
+                        else
                           addISUB(temp, expressionVariable, termVariable);
-                          (yyval.expAtt)->type = INTTYPE;
-                        } 
                       }
                       (yyval.expAtt) = (yyvsp[(1) - (3)].expAtt);
+                      (yyval.expAtt)->type = type;
                       (yyval.expAtt)->result = temp;
                     }
     break;
 
   case 37:
 /* Line 1792 of yacc.c  */
-#line 384 "parser.y"
+#line 430 "parser.y"
     {(yyval.expAtt)=(yyvsp[(1) - (1)].expAtt);}
     break;
 
   case 38:
 /* Line 1792 of yacc.c  */
-#line 388 "parser.y"
+#line 434 "parser.y"
     { char *termVariable, *factorVariable;
+                      enum typeForNumbers type = INTTYPE;
                       tempResult temp = newTemp();
                       termVariable = getExpType((yyvsp[(1) - (3)].expAtt));
                       factorVariable = getExpType((yyvsp[(3) - (3)].expAtt));
 
-                      if((yyvsp[(2) - (3)].modifierOpp)==MUL){
-                        if((yyvsp[(1) - (3)].expAtt)->type == FLOATTYPE || (yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE){
+                      if((yyvsp[(1) - (3)].expAtt)->type == FLOATTYPE || (yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE){
                           if((yyvsp[(1) - (3)].expAtt)->type == INTTYPE) termVariable = tempForCasting(termVariable);
                           if((yyvsp[(3) - (3)].expAtt)->type == INTTYPE) factorVariable = tempForCasting(termVariable);
+                          type = FLOATTYPE;
+                      }
+
+                      if((yyvsp[(2) - (3)].modifierOpp)==MUL){
+                        if(type == FLOATTYPE)
                           addRMLT(temp, termVariable, factorVariable);
-                          (yyval.expAtt)->type = FLOATTYPE;
-                        }
-                        else{
+                        else
                           addIMLT(temp, termVariable, factorVariable);
-                          (yyval.expAtt)->type = INTTYPE;
-                        } 
                       }
 
                       if((yyvsp[(2) - (3)].modifierOpp)==DIV){
-                        if((yyvsp[(1) - (3)].expAtt)->type == FLOATTYPE || (yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE){
-                          if((yyvsp[(1) - (3)].expAtt)->type == INTTYPE) termVariable = tempForCasting(termVariable);
-                          if((yyvsp[(3) - (3)].expAtt)->type == INTTYPE) factorVariable = tempForCasting(factorVariable);
+                        if(type == INTTYPE)
                           addRDIV(temp, termVariable, factorVariable);
-                          (yyval.expAtt)->type = FLOATTYPE;
-                        }
-                        else{
+                        else
                           addIDIV(temp, termVariable, factorVariable);
-                          (yyval.expAtt)->type = INTTYPE;
-                        } 
                       }
                       (yyval.expAtt) = (yyvsp[(1) - (3)].expAtt);
+                      (yyval.expAtt) -> type = type;
                       (yyval.expAtt)->result = temp;
                     }
     break;
 
   case 39:
 /* Line 1792 of yacc.c  */
-#line 421 "parser.y"
+#line 463 "parser.y"
     {(yyval.expAtt) = (yyvsp[(1) - (1)].expAtt);}
     break;
 
   case 40:
 /* Line 1792 of yacc.c  */
-#line 424 "parser.y"
+#line 466 "parser.y"
     {(yyval.expAtt) = (yyvsp[(2) - (3)].expAtt);}
     break;
 
   case 41:
 /* Line 1792 of yacc.c  */
-#line 426 "parser.y"
+#line 468 "parser.y"
     { extern int yylineno;
                       char *expressionVariable = getExpType((yyvsp[(3) - (4)].expAtt));
                       tempResult temp = newTemp();
@@ -1927,7 +1953,7 @@ yyreduce:
 
   case 42:
 /* Line 1792 of yacc.c  */
-#line 449 "parser.y"
+#line 491 "parser.y"
     {(yyval.expAtt) = creatNewExpression();
                         (yyval.expAtt)->variable = (yyvsp[(1) - (1)].variable);
                         (yyval.expAtt) -> result = NULL;
@@ -1940,19 +1966,19 @@ yyreduce:
 
   case 43:
 /* Line 1792 of yacc.c  */
-#line 457 "parser.y"
+#line 499 "parser.y"
     {(yyval.expAtt)=creatNewExpression(); (yyval.expAtt)->type = (isFloat((yyvsp[(1) - (1)].variable))) ? FLOATTYPE : INTTYPE; (yyval.expAtt)->variable = (yyvsp[(1) - (1)].variable);}
     break;
 
   case 44:
 /* Line 1792 of yacc.c  */
-#line 460 "parser.y"
+#line 502 "parser.y"
     { (yyval.lval) = newLabel();}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1956 "parser.tab.c"
+#line 1982 "parser.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2184,7 +2210,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 462 "parser.y"
+#line 504 "parser.y"
 
 
 void wirteCPLtoFile(char *targetFileName){
@@ -2194,8 +2220,8 @@ void wirteCPLtoFile(char *targetFileName){
     while(head != NULL){
       fprintf(qudFile,"%s", head->cplCommand);
       head = head -> next;}
+    fprintf(qudFile,"Amit Farjun");
   }
-  fprintf(qudFile,"Amit Farjun");
   fprintf(stderr,"Amit Farjun\n");
 }
 
