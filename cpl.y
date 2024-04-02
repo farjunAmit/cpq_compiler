@@ -26,7 +26,7 @@
   /*end define struct and enums*/
 
   /*function signature*/
-  void wirteCPLtoFile(FILE *targerFile);
+  void wirteCPLtoFile(char *targerFileName);
   int digitsInNum(int num);
   int isFloat(char * number);
   node createNode();
@@ -76,11 +76,11 @@
   /*end cpl function signature*/
 
   /*global variable*/
-  node head = createNode();
-  node last = head;
-  symboleTable startTable = createSymboleTableNode();
+  node head;
+  node last;
+  symboleTable startTable;
   symboleTable currentSymbole;
-  symboleTable endTable = startTable;
+  symboleTable endTable;
   int errorCheck = 0;
   int label_counter = 0;
   int temp_result_counter = 0;
@@ -461,7 +461,6 @@ create_label    :   /*empty*/ { $$ = newLabel();}
 int main (int argc, char **argv)
 {
   extern FILE *yyin; /* defined by flex */
-  FILE *qudFile;
   char *sourceFileName;
   char *fileType;
   char targetFileName[GET_FILE_NAME_LENGTH(argv[1])];
@@ -469,6 +468,7 @@ int main (int argc, char **argv)
   last = head;
   startTable = createSymboleTableNode();
   endTable = startTable;
+  
   if (argc != 2) {
      fprintf (stderr, "Usage: %s <input-file-name>\n", argv[0]);
 	 return 1;
@@ -487,25 +487,26 @@ int main (int argc, char **argv)
   } 
 
   yyparse ();
-/*print the list*/
-  if(!errorCheck){
-    strcpy(targetFileName,sourceFileName);
-    strcpy(targetFileName+strlen(sourceFileName),".qud");
-    qudFile = fopen(targetFileName,"w");
-    wirteCPLtoFile(qudFile);
-  }
 
-  fprintf(qudFile,"Amit Farjun");
-  fprintf(stderr,"Amit Farjun\n");
+/*print the list*/
+  strcpy(targetFileName,sourceFileName);
+  strcpy(targetFileName+strlen(sourceFileName),".qud");
+  wirteCPLtoFile(targetFileName);
   fclose (yyin);
   return 0;
 }
 
-void wirteCPLtoFile(FILE *targerFile){
-  while(head != NULL){
-    fprintf(targerFile,"%s", head->cplCommand);
-    head = head -> next;}
+void wirteCPLtoFile(char *targetFileName){
+  FILE *qudFile;
+  if(!errorCheck){
+    qudFile = fopen(targetFileName,"w");
+    while(head != NULL){
+      fprintf(qudFile,"%s", head->cplCommand);
+      head = head -> next;}
   }
+  fprintf(qudFile,"Amit Farjun");
+  fprintf(stderr,"Amit Farjun\n");
+}
 
 node createNode(){
   node temp; 
