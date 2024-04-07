@@ -478,7 +478,7 @@ factor          :   '(' expression ')' {$$ = $2;}
                           addIASN(tempToString(temp),expressionVariable);/*if they same type, just do assignment*/
                         }
                         else
-                          addITOR(temp,expressionVariable); /*if they not the same type do casting*/
+                          addRTOI(temp,expressionVariable); /*if they not the same type do casting*/
                       }
                       if($1 == FLOATTYPE){
                         /*safe check - check if you try to cast variable to the same type - if you do
@@ -488,7 +488,7 @@ factor          :   '(' expression ')' {$$ = $2;}
                           addRASN(tempToString(temp),expressionVariable);/*if they same type, just do assignment*/
                         }
                         else
-                          addRTOI(temp,expressionVariable); /*if they not the same type do casting*/
+                          addITOR(temp,expressionVariable); /*if they not the same type do casting*/
                       }
                       $$ = $3;
                       $$ -> result = temp;

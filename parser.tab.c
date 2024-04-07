@@ -224,7 +224,7 @@ int yyparse ();
 
   /*new type - node: this linked list will save the code in it cpl form, each node is 1 command*/
   typedef struct LinkedList {
-    char *cplCommand; 
+    char *quadCommand; 
     struct LinkedList* next;
   }* node;
 
@@ -611,8 +611,8 @@ static const yytype_uint16 yyrline[] =
        0,   163,   163,   163,   174,   175,   178,   178,   185,   186,
      189,   194,   202,   203,   204,   205,   206,   207,   210,   235,
      250,   260,   262,   260,   278,   279,   278,   292,   294,   295,
-     298,   306,   308,   316,   319,   325,   398,   430,   433,   463,
-     466,   467,   491,   499,   502
+     298,   306,   308,   316,   319,   325,   398,   430,   433,   464,
+     467,   468,   497,   504,   509
 };
 #endif
 
@@ -1571,8 +1571,8 @@ yyreduce:
 /* Line 1792 of yacc.c  */
 #line 169 "parser.y"
     { /*After the parser phase is over add the HALT commmand to the end of the cpl code*/
-                      last -> cplCommand = (char *) malloc(sizeof(char)*strlen("\tHALT\n\0"));
-                      strcpy(last -> cplCommand,"\tHALT\n");}
+                      last -> quadCommand = (char *) malloc(sizeof(char)*strlen("\tHALT\n\0"));
+                      strcpy(last -> quadCommand,"\tHALT\n");}
     break;
 
   case 6:
@@ -1883,67 +1883,73 @@ yyreduce:
     { char *termVariable, *factorVariable;
                       enum typeForNumbers type = INTTYPE;
                       tempResult temp = newTemp();
-                      termVariable = getExpType((yyvsp[(1) - (3)].expAtt));
-                      factorVariable = getExpType((yyvsp[(3) - (3)].expAtt));
-
+                      termVariable = getExpType((yyvsp[(1) - (3)].expAtt)); /*get expression type for term*/
+                      factorVariable = getExpType((yyvsp[(3) - (3)].expAtt));/*get expression type for factor*/
+                      /*if one of them is float - check if the other one is int. if it does do casting 
+                      befor continue. Anyway set type to float*/
                       if((yyvsp[(1) - (3)].expAtt)->type == FLOATTYPE || (yyvsp[(3) - (3)].expAtt)->type == FLOATTYPE){
                           if((yyvsp[(1) - (3)].expAtt)->type == INTTYPE) termVariable = tempForCasting(termVariable);
                           if((yyvsp[(3) - (3)].expAtt)->type == INTTYPE) factorVariable = tempForCasting(termVariable);
                           type = FLOATTYPE;
                       }
 
-                      if((yyvsp[(2) - (3)].modifierOpp)==MUL){
+                      if((yyvsp[(2) - (3)].modifierOpp)==MUL){/*for * operator*/
                         if(type == FLOATTYPE)
                           addRMLT(temp, termVariable, factorVariable);
                         else
                           addIMLT(temp, termVariable, factorVariable);
                       }
 
-                      if((yyvsp[(2) - (3)].modifierOpp)==DIV){
-                        if(type == INTTYPE)
+                      if((yyvsp[(2) - (3)].modifierOpp)==DIV){/*for / operator*/
+                        if(type == FLOATTYPE)
                           addRDIV(temp, termVariable, factorVariable);
                         else
                           addIDIV(temp, termVariable, factorVariable);
                       }
                       (yyval.expAtt) = (yyvsp[(1) - (3)].expAtt);
-                      (yyval.expAtt) -> type = type;
-                      (yyval.expAtt)->result = temp;
+                      (yyval.expAtt) -> type = type; /*term get the final type of the stmt*/
+                      (yyval.expAtt)->result = temp; /*term get the temp that hold the result*/
                     }
     break;
 
   case 39:
 /* Line 1792 of yacc.c  */
-#line 463 "parser.y"
+#line 464 "parser.y"
     {(yyval.expAtt) = (yyvsp[(1) - (1)].expAtt);}
     break;
 
   case 40:
 /* Line 1792 of yacc.c  */
-#line 466 "parser.y"
+#line 467 "parser.y"
     {(yyval.expAtt) = (yyvsp[(2) - (3)].expAtt);}
     break;
 
   case 41:
 /* Line 1792 of yacc.c  */
-#line 468 "parser.y"
+#line 469 "parser.y"
     { extern int yylineno;
-                      char *expressionVariable = getExpType((yyvsp[(3) - (4)].expAtt));
+                      char *expressionVariable = getExpType((yyvsp[(3) - (4)].expAtt)); /*get expression type for expression*/
                       tempResult temp = newTemp();
+
                       if((yyvsp[(1) - (4)].tval) == INTTYPE){
+                        /*safe check - check if you try to cast variable to the same type - if you do
+                        send warning but keep the program running*/
                         if((yyvsp[(3) - (4)].expAtt) -> type == INTTYPE){
                           printf("WARNING: in line: %d TRY TO CAST INT TO INT\n", yylineno);
-                          addIASN(tempToString(temp),expressionVariable);
+                          addIASN(tempToString(temp),expressionVariable);/*if they same type, just do assignment*/
                         }
                         else
-                          addITOR(temp,expressionVariable);
+                          addRTOI(temp,expressionVariable); /*if they not the same type do casting*/
                       }
                       if((yyvsp[(1) - (4)].tval) == FLOATTYPE){
+                        /*safe check - check if you try to cast variable to the same type - if you do
+                        send warning but keep the program running*/
                         if((yyvsp[(3) - (4)].expAtt) -> type == FLOATTYPE){
                           printf("WARNING: in line:%d TRY TO CAST FLAOT TO FLAOT\n", yylineno);
-                          addRASN(tempToString(temp),expressionVariable);
+                          addRASN(tempToString(temp),expressionVariable);/*if they same type, just do assignment*/
                         }
                         else
-                          addRTOI(temp,expressionVariable);
+                          addITOR(temp,expressionVariable); /*if they not the same type do casting*/
                       }
                       (yyval.expAtt) = (yyvsp[(3) - (4)].expAtt);
                       (yyval.expAtt) -> result = temp;
@@ -1953,32 +1959,33 @@ yyreduce:
 
   case 42:
 /* Line 1792 of yacc.c  */
-#line 491 "parser.y"
+#line 497 "parser.y"
     {(yyval.expAtt) = creatNewExpression();
-                        (yyval.expAtt)->variable = (yyvsp[(1) - (1)].variable);
-                        (yyval.expAtt) -> result = NULL;
+                        (yyval.expAtt)->variable = (yyvsp[(1) - (1)].variable);/*get the id*/
                         symboleTable temp = searchInTable((yyvsp[(1) - (1)].variable)); 
-                        if(temp==NULL)
+                        if(temp==NULL)/*if this id doesnt define befor - send error*/
                           yyerror("not valid ID");
-                        else 
+                        else /*else, get the id type*/
                           (yyval.expAtt)->type = temp->type;}
     break;
 
   case 43:
 /* Line 1792 of yacc.c  */
-#line 499 "parser.y"
-    {(yyval.expAtt)=creatNewExpression(); (yyval.expAtt)->type = (isFloat((yyvsp[(1) - (1)].variable))) ? FLOATTYPE : INTTYPE; (yyval.expAtt)->variable = (yyvsp[(1) - (1)].variable);}
+#line 504 "parser.y"
+    {(yyval.expAtt)=creatNewExpression(); 
+                    (yyval.expAtt)->type = (isFloat((yyvsp[(1) - (1)].variable))) ? FLOATTYPE : INTTYPE; /*get the number type*/
+                    (yyval.expAtt)->variable = (yyvsp[(1) - (1)].variable);}
     break;
 
   case 44:
 /* Line 1792 of yacc.c  */
-#line 502 "parser.y"
-    { (yyval.lval) = newLabel();}
+#line 509 "parser.y"
+    { (yyval.lval) = newLabel(); /*creat new label*/}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1982 "parser.tab.c"
+#line 1989 "parser.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2210,21 +2217,23 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 504 "parser.y"
+#line 511 "parser.y"
 
-
+/*this targer get name of file and create new file with the same name.
+then this funcation wirte the file all the quad code that the gloabal variable "head" hold*/
 void wirteCPLtoFile(char *targetFileName){
   FILE *qudFile;
-  if(!errorCheck){
-    qudFile = fopen(targetFileName,"w");
-    while(head != NULL){
-      fprintf(qudFile,"%s", head->cplCommand);
+  if(!errorCheck){/*if there is no error in the cpl code start printing to file*/
+    qudFile = fopen(targetFileName,"w"); 
+    while(head != NULL){/*as long as there is more command to print keep printing*/
+      fprintf(qudFile,"%s", head->quadCommand);
       head = head -> next;}
     fprintf(qudFile,"Amit Farjun");
   }
   fprintf(stderr,"Amit Farjun\n");
 }
 
+/*constructive function - return new node object*/
 node createNode(){
   node temp; 
   temp = (node)malloc(sizeof(struct LinkedList));
@@ -2232,6 +2241,7 @@ node createNode(){
   return temp;
 }
 
+/*constructive function - return new symbole table object*/
 symboleTable createSymboleTableNode(){
   symboleTable temp;
   temp = (symboleTable)malloc(sizeof(struct LinkedListForSymbole));
@@ -2239,6 +2249,8 @@ symboleTable createSymboleTableNode(){
   temp -> next = NULL;
   return temp;
 }
+
+/*constructive function - return new expression object*/
 expressionAttribute creatNewExpression(){
   expressionAttribute temp;
   temp = (expressionAttribute)malloc(sizeof(struct structForExpression));
@@ -2246,6 +2258,7 @@ expressionAttribute creatNewExpression(){
   temp -> result = NULL;
 }
 
+/*constructive function - return new booleand object*/
 booleanAttribute creatNewBool(){
   booleanAttribute temp;
   temp = (booleanAttribute)malloc(sizeof(struct structForBoolean));
@@ -2253,6 +2266,8 @@ booleanAttribute creatNewBool(){
   temp -> result = NULL;
 }
 
+/*this function get a start point on a symbole table and a type. the function
+update all the symboles from the start point till the end with the givin type*/
 void updateType(symboleTable startPoint, enum typeForNumbers idType){
   symboleTable temp = startPoint;
   while(temp != endTable){
@@ -2261,6 +2276,8 @@ void updateType(symboleTable startPoint, enum typeForNumbers idType){
   }
 }
 
+/*this fucntion get an id and return pointer to the node that hold that id. if this id doesnt exist 
+it return NULL*/
 symboleTable searchInTable(char * id){
   symboleTable temp = startTable;
   while(temp -> id != NULL){
@@ -2272,16 +2289,20 @@ symboleTable searchInTable(char * id){
   return NULL;
 }
 
+/*this function the symbole table is the form: id: tpye\n*/
 void printSymboleTable(){
   symboleTable temp = startTable;
   while(temp -> id != NULL){
-    printf("%s",temp -> id );
+    printf("%s:",temp -> id );
     if(temp -> type == FLOATTYPE) printf(" float\n");
     else printf(" int\n");
     temp = temp -> next;
   }
 }
 
+/*this function return a string that hold the value of the expression.
+the this exprassion hold id/number it return this. if this expression hold temp result it 
+first cast the temp resutl to string and then return it*/
 char * getExpType(expressionAttribute expr){
   char * expressionVariable;
   if(expr->result == NULL)
@@ -2291,38 +2312,47 @@ char * getExpType(expressionAttribute expr){
   return expressionVariable;
 }
 
+/*this function create new node and move the global vavariable "last" to this node*/
 void moveLast(){
   last -> next = createNode();
   last = last -> next;
 }
 
+/*this function create new node and move the global vavariable "endTable" to this node*/
 void moveEndTable(){
   endTable -> next = createSymboleTableNode();
   endTable = endTable -> next;
 }
 
+/*constructive function - return new label object*/
 label newLabel(){
   label temp;
   temp = (label)malloc(sizeof(struct labels));
-  temp -> number = ++label_counter;
+  temp -> number = ++label_counter; /*each label has a number, this make sure there are no 2 labels with the same number*/
   temp -> l = 'L';
   return temp;
 }
 
+/*constructive function - return new temp object*/
 tempResult newTemp(){
   tempResult temp;
   temp = (tempResult)malloc(sizeof(struct tempResults));
-  temp -> number = ++temp_result_counter;
+  temp -> number = ++temp_result_counter; /*each temp has a number, this make sure there are no 2 temps with the same number*/
   temp -> name = "t";
   while(searchInTable(tempToString(temp))!=NULL) temp -> number = ++temp_result_counter;
   return temp;
 }
+
+/*this function get pointer to string and return new pointer with new temp result 
+the new temp result hold the value of the orignal string after casting to INT value
+this function should be use only for inner casting and not cpl casting*/
 char *tempForCasting(char *id){
   tempResult tr = newTemp();
   addITOR(tr, id);
   return tempToString(tr);
 }
 
+/*this function get a temp result and return a sting that hold the same temp*/
 char * tempToString(tempResult tr){
   char * temp;
   temp = (char *)malloc(sizeof(char)*(digitsInNum(tr->number)+strlen(tr->name)+1));
@@ -2330,6 +2360,7 @@ char * tempToString(tempResult tr){
   return temp;
 }
 
+/*this function get a number and return the number of digits this number has*/
 int digitsInNum(int num){
   int counter = 1;
   while(num > 10){
@@ -2339,6 +2370,8 @@ int digitsInNum(int num){
   return counter;
 }
 
+/*this function get a string that represent a number and reurn 1 if this number is float type
+else return 0*/
 int isFloat(char *number){
   char * currentNum = number;
   for(char * currentNum = number; *currentNum != '\0'; currentNum++)
@@ -2347,190 +2380,185 @@ int isFloat(char *number){
   return 0;
 }
 
-/*cpl command function*/
+/*cpl command function - all this function add a quad command to the list. */
+/*add jump command to the list - get label as an argument*/
 void addJUMP(label L){
   int labelDigits = digitsInNum(L->number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(labelDigits+STRLEN_FOR_CPL_1VAR+2));
-  sprintf(last->cplCommand,"\tJUMP %c%d\n", L->l, L->number);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(labelDigits+STRLEN_FOR_CPL_1VAR+2));
+  sprintf(last->quadCommand,"\tJUMP %c%d\n", L->l, L->number);
   moveLast();
 }
-
+/*add RPTR/IPRT to the list, get char * as an argument*/
 void addRPRT(char * id){
-  last -> cplCommand=(char *)malloc(sizeof(char)*(strlen(id) + STRLEN_FOR_CPL_1VAR + 1));
-  sprintf(last->cplCommand,"\tRPRT %s\n",id);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(strlen(id) + STRLEN_FOR_CPL_1VAR + 1));
+  sprintf(last->quadCommand,"\tRPRT %s\n",id);
   moveLast();
 }
-
 void addIPRT(char * id){
-  last -> cplCommand=(char *)malloc(sizeof(char)*(strlen(id) + STRLEN_FOR_CPL_1VAR + 1));
-  sprintf(last->cplCommand,"\tIPRT %s\n",id);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(strlen(id) + STRLEN_FOR_CPL_1VAR + 1));
+  sprintf(last->quadCommand,"\tIPRT %s\n",id);
   moveLast();
 }
-
+/*add RINP/IINP to the list, get char * as an argument*/
 void addRINP(char * id){
-  last -> cplCommand=(char *)malloc(sizeof(char)*(strlen(id) + STRLEN_FOR_CPL_1VAR + 1));
-  sprintf(last->cplCommand,"\tRINP %s\n",id);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(strlen(id) + STRLEN_FOR_CPL_1VAR + 1));
+  sprintf(last->quadCommand,"\tRINP %s\n",id);
   moveLast();
 }
-
 void addIINP(char * id){
-  last -> cplCommand=(char *)malloc(sizeof(char)*(strlen(id) + STRLEN_FOR_CPL_1VAR + 1));
-  sprintf(last->cplCommand,"\tIINP %s\n",id);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(strlen(id) + STRLEN_FOR_CPL_1VAR + 1));
+  sprintf(last->quadCommand,"\tIINP %s\n",id);
   moveLast();
 }
 
+/*add JMPZ to the list, get label and tempResilt as an arguments*/
 void addJMPZ(label L, tempResult r1){
   int labelDigits = digitsInNum(L->number);
   int tempDigits = digitsInNum(r1 -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(labelDigits + tempDigits + strlen(r1->name) + STRLEN_FOR_CPL_2VAR + 2));
-  sprintf(last->cplCommand,"\tJMPZ %c%d %s%d\n", L->l, L->number, r1->name, r1->number);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(labelDigits + tempDigits + strlen(r1->name) + STRLEN_FOR_CPL_2VAR + 2));
+  sprintf(last->quadCommand,"\tJMPZ %c%d %s%d\n", L->l, L->number, r1->name, r1->number);
   moveLast();
 }
-
+/*add RASN/IASN to the list, get char * and char * as an arguments*/
 void addRASN(char * id ,char * var){
-  last -> cplCommand=(char *)malloc(sizeof(char)*(strlen(id)+strlen(var)+STRLEN_FOR_CPL_2VAR+1));
-  sprintf(last->cplCommand,"\tRASN %s %s\n", id, var);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(strlen(id)+strlen(var)+STRLEN_FOR_CPL_2VAR+1));
+  sprintf(last->quadCommand,"\tRASN %s %s\n", id, var);
   moveLast();
 }
-
 void addIASN(char * id ,char * var){
-  last -> cplCommand=(char *)malloc(sizeof(char)*(strlen(id)+strlen(var)+ STRLEN_FOR_CPL_2VAR +1 ));
-  sprintf(last->cplCommand,"\tIASN %s %s\n", id, var);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(strlen(id)+strlen(var)+ STRLEN_FOR_CPL_2VAR +1 ));
+  sprintf(last->quadCommand,"\tIASN %s %s\n", id, var);
   moveLast();
 }
 
+/*add ITOR/RTOI to the list, get tempResult and char * as an arguments*/
 void addITOR(tempResult rt, char *id){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(id)+STRLEN_FOR_CPL_2VAR + 1));
-  sprintf(last->cplCommand,"\tITOR %s%d %s\n", rt->name, rt->number, id);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(id)+STRLEN_FOR_CPL_2VAR + 1));
+  sprintf(last->quadCommand,"\tITOR %s%d %s\n", rt->name, rt->number, id);
   moveLast();
 }
-
 void addRTOI(tempResult rt, char *id){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(id)+STRLEN_FOR_CPL_2VAR + 1));
-  sprintf(last->cplCommand,"\tRTOI %s%d %s\n", rt->name, rt->number, id);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(id)+STRLEN_FOR_CPL_2VAR + 1));
+  sprintf(last->quadCommand,"\tRTOI %s%d %s\n", rt->name, rt->number, id);
   moveLast();
 }
-
+/*add RADD/IADD to the list, get tempResulrs, char * and char * as an arguments*/
 void addRADD(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tRADD %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tRADD %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
 void addIADD(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tIADD %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tIADD %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
+/*add RSUB/ISUB to the list, get tempResulrs, char * and char * as an arguments*/
 void addRSUB(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tRSUB %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tRSUB %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
 void addISUB(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tISUB %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tISUB %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
+/*add RMLT/IMLT to the list, get tempResulrs, char * and char * as an arguments*/
 void addRMLT(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tRMLT %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tRMLT %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
-void addRDIV(tempResult rt, char * var1, char *var2){
-  int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tRDIV %s%d %s %s\n", rt->name, rt->number, var1, var2);
-  moveLast();
-}
-
 void addIMLT(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tIMLT %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tIMLT %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  moveLast();
+}
+/*add RDIV/IDIV to the list, get tempResulrs, char * and char * as an arguments*/
+void addRDIV(tempResult rt, char * var1, char *var2){
+  int tempDigits = digitsInNum(rt -> number);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tRDIV %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
 void addIDIV(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tIDIV %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tIDIV %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
+/*add REQL/IEQL to the list, get tempResulrs, char * and char * as an arguments*/
 void addREQL(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tREQL %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tREQL %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
 void addIEQL(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tIEQL %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tIEQL %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
+/*add RNQL/INQL to the list, get tempResulrs, char * and char * as an arguments*/
 void addRNQL(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tRNQL %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tRNQL %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
 void addINQL(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tINQL %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tINQL %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
+/*add RLSS/ILSS to the list, get tempResulrs, char * and char * as an arguments*/
 void addRLSS(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tRLSS %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tRLSS %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
 void addILSS(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tILSS %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tILSS %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
+/*add RGRT/IGRT to the list, get tempResulrs, char * and char * as an arguments*/
 void addRGRT(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tRGRT %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tRGRT %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
 void addIGRT(tempResult rt, char * var1, char *var2){
   int tempDigits = digitsInNum(rt -> number);
-  last -> cplCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
-  sprintf(last->cplCommand,"\tIGRT %s%d %s %s\n", rt->name, rt->number, var1, var2);
+  last -> quadCommand=(char *)malloc(sizeof(char)*(tempDigits+strlen(rt->name)+strlen(var1)+strlen(var2)+STRLEN_FOR_CPL_3VAR + 1));
+  sprintf(last->quadCommand,"\tIGRT %s%d %s %s\n", rt->name, rt->number, var1, var2);
   moveLast();
 }
-
+/*this function add label to the list, get label as an atgument*/
 void addLabel(label L)
 {
   int labelDigits = digitsInNum(L->number);
-  last->cplCommand = (char *)malloc(sizeof(char)*(labelDigits+STRLEN_FOR_LABELS+2));
-  sprintf(last->cplCommand,"%c%d:\n",L->l, L->number);
+  last->quadCommand = (char *)malloc(sizeof(char)*(labelDigits+STRLEN_FOR_LABELS+2));
+  sprintf(last->quadCommand,"%c%d:\n",L->l, L->number);
   moveLast();
 }
+/*end of quad commaned function*/
 
+/*this function print error msm to the stderr. if even 1 error msm has been print the quad file wont be created*/
 void yyerror (const char *s)
 {
   extern int yylineno;
